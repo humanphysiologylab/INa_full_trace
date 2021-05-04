@@ -38,9 +38,9 @@ void calculate_circle( int n, int n_start, double *t, double *v_c,
   double alpha = args[25];
   double v_off =  args[26];
 
-  int n_step = 25000;
+  //int n_step = 25000;
   double dt = t[1] - t[0];
-  int time_ = 25000;
+  //int time_ = 25000;
 
   I_leak[0] = g_leak * v_m[0];
   double c_comp = x_c_comp*c_m;
@@ -64,7 +64,7 @@ void calculate_circle( int n, int n_start, double *t, double *v_c,
 
   int circle = 0;
   int i=1;
-  while (i !=  n_step) {
+  while (i !=  n) {
 
       alpha_m  = a0_m * exp(v_m[i-1] / (s_m));
       beta_m = b0_m * exp(v_m[i-1] / (-delta_m));
@@ -93,7 +93,7 @@ void calculate_circle( int n, int n_start, double *t, double *v_c,
 
       I_leak[i] = g_leak * v_m[i];
       I_Na[i] = g_max * h[i] * pow(m[i],3) * (v_m[i] - v_rev) * j[i] ;
-      if ((i-1)%time_ == 0 && circle != n_start) {
+      if ((i-1)%n_start == 0 && circle != n_start) {
           v_cp[i-1], v_p[i-1], v_m[i-1], v_comp[i-1], m_inf,h_inf, m[i-1], h[i-1], j[i-1], I_leak[i-1], I_Na[i-1] = \
           v_cp[i], v_p[i], v_m[i], v_comp[i], m_inf, h_inf, m[i], h[i], j[i], I_leak[i], I_Na[i];
           circle += 1;

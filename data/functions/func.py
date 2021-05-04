@@ -38,7 +38,6 @@ def euler_numba_helper(x, y, c):
 
 @profile
 @njit
-@njit
 def rush_larsen_easy_numba_helper(x, y, c):
     for i in range(1, len(x)):
         x[i] = y[i-1] + (x[i-1] - y[i-1]) * np.exp(c)
@@ -103,26 +102,26 @@ def calculate_circle(n, t, v_c, v_rev,v_cp,v_p,v_m,v_comp, m_inf,h_inf , m, h, j
         v_p[i] = v_cp[i-1] + (v_p[i-1] - v_cp[i-1]) * np.exp(-dt / (r_p * c_p))
         v_m[i] = v_m[i-1] + (v_p[i-1] + v_off - v_m[i-1] ) * (dt / (r_m * c_m)) - 1e-9 * (I_Na[i-1] + I_leak[i-1]) * dt / c_m
 
-        m[i] = m_inf[i-1] + (m[i-1] - m_inf[i-1]) * np.exp(-dt/tau_m)
-        h[i] = h_inf[i-1] + (h[i-1] - h_inf[i-1]) * np.exp(-dt/tau_h)
-        j[i] = h_inf[i-1] + (j[i-1] - h_inf[i-1]) * np.exp(-dt/tau_j)
+        m[i] = m_inf + (m[i-1] - m_inf) * np.exp(-dt/tau_m)
+        h[i] = h_inf + (h[i-1] - h_inf) * np.exp(-dt/tau_h)
+        j[i] = h_inf + (j[i-1] - h_inf) * np.exp(-dt/tau_j)
 
-        m_inf[i] = 1 / (1 + np.exp((- v_half_m - v_m[i]) / k_m))
-        h_inf[i] = 1 / (1 + np.exp((v_half_h + v_m[i]) / k_h))
+        m_inf = 1 / (1 + np.exp((- v_half_m - v_m[i]) / k_m))
+        h_inf = 1 / (1 + np.exp((v_half_h + v_m[i]) / k_h))
 
         I_leak[i] = g_leak * v_m[i]
         I_Na[i] = g_max * h[i] * (m[i]**3) * (v_m[i] - v_rev) * j[i]
         if (i-1)/time_ == (i-1)//time_ :
             while circle!= n_start:
-                v_cp[i-1], v_p[i-1], v_m[i-1], v_comp[i-1], m_inf[i-1],\
-                h_inf[i-1], m[i-1], h[i-1], j[i-1], I_leak[i-1], I_Na[i-1] = \
-                v_cp[i], v_p[i], v_m[i], v_comp[i], m_inf[i], h_inf[i], m[i], h[i], j[i], I_leak[i], I_Na[i]
+                v_cp[i-1], v_p[i-1], v_m[i-1], v_comp[i-1], m_inf, h_inf, m[i-1], h[i-1], j[i-1], I_leak[i-1], I_Na[i-1] = \
+                v_cp[i], v_p[i], v_m[i], v_comp[i], m_inf, h_inf, m[i], h[i], j[i], I_leak[i], I_Na[i]
+                
                 circle += 1
             i+=1
         else:
             i+=1
             circle = 0
-    return m_inf[::n], h_inf[::n], v_cp,  v_p, v_m, v_comp, I_leak[::n], I_Na[::n]#tau_m[::n], tau_h[::n], tau_j[::n],
+    return v_cp,  v_p, v_m, v_comp, I_leak[::n], I_Na[::n]#tau_m[::n], tau_h[::n], tau_j[::n],
 
 
 @profile
@@ -159,8 +158,8 @@ def calculate_I_out(x, *args):#, s0, c, protocol, ...):
     v_rev = 18
 
 
-    m_inf = np.zeros_like(t)
-    h_inf = np.zeros_like(t)
+    #m_inf = np.zeros_like(t)
+    #h_inf = np.zeros_like(t)
     #
     v_cp = np.zeros_like(t)
     v_p = np.zeros_like(t)
@@ -179,8 +178,8 @@ def calculate_I_out(x, *args):#, s0, c, protocol, ...):
     v_comp[0] =  - 80
     v_cp[0] =  - 80
 
-    m_inf[0] = 0
-    h_inf[0] = 1
+    m_inf = 0
+    h_inf = 1
 
     m[0] = 0
     h[0] = 1
@@ -193,7 +192,7 @@ def calculate_I_out(x, *args):#, s0, c, protocol, ...):
 
     I_error = np.zeros(len(t)//n)
     try:
-        m_inf, h_inf, v_cp, v_p, v_m, v_comp, I_leak, I_Na = calculate_circle(n, t, v_c, v_rev,v_cp,v_p,v_m,v_comp, m_inf,h_inf ,m, h, j,I_leak, I_Na,y)
+        v_cp, v_p, v_m, v_comp, I_leak, I_Na = calculate_circle(n, t, v_c, v_rev,v_cp,v_p,v_m,v_comp, m_inf,h_inf ,m, h, j,I_leak, I_Na,y)
     except ZeroDivisionError:
         I_error+=1e100
         return I_error

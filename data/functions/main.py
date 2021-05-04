@@ -13,21 +13,13 @@ from numba import njit
 
 
 
-#@profile
-def rush_larsen_easy_numba_helper(x, y, c):
-    for i in range(1, len(x)):
-        x[i] = y[i-1] + (x[i-1] - y[i-1]) * np.exp(c)
-#@profile
-def euler_numba_helper(x, y, c):
-    for i in range(1, len(x)):
-        x[i] = x[i-1] + (y[i-1] - x[i-1]) * c
 
-
+@profile
 @njit
 def rush_larsen_easy_numba_helper(x, y, c):
     for i in range(1, len(x)):
         x[i] = y[i-1] + (x[i-1] - y[i-1]) * np.exp(c)
-
+@profile
 @njit
 def euler_numba_helper(x, y, c):
     for i in range(1, len(x)):
@@ -36,21 +28,7 @@ def euler_numba_helper(x, y, c):
 #@profile
 #@njit
 
-#@profile
-@njit
-def rush_larsen_easy_numba_helper(x, y, c):
-    for i in range(1, len(x)):
-        x[i] = y[i-1] + (x[i-1] - y[i-1]) * np.exp(c)
-
-@njit
-def euler_numba_helper(x, y, c):
-    for i in range(1, len(x)):
-        x[i] = x[i-1] + (y[i-1] - x[i-1]) * c
-
-#@profile
-#@njit
-
-#@profile
+@profile
 @njit
 def calculate_circle(n, t, v_c, v_rev,v_cp,v_p,v_m,v_comp, m_inf,h_inf , m, h, j,I_leak, I_Na,args):
 
@@ -61,9 +39,9 @@ def calculate_circle(n, t, v_c, v_rev,v_cp,v_p,v_m,v_comp, m_inf,h_inf , m, h, j
 
     dt = t[1] - t[0]
     #I_leak[0] = g_leak * v_m[0]
-    time_ = 25000
+    time_ = len(t)
 
-    n_start = 15
+    n_start = 15000
 
     I_leak[0] = g_leak * v_m[0]
     c_comp = x_c_comp*c_m
@@ -111,20 +89,19 @@ def calculate_circle(n, t, v_c, v_rev,v_cp,v_p,v_m,v_comp, m_inf,h_inf , m, h, j
 
         I_leak[i] = g_leak * v_m[i]
         I_Na[i] = g_max * h[i] * (m[i]**3) * (v_m[i] - v_rev) * j[i]
-        if (i-1)/time_ == (i-1)//time_ :
-            while circle!= n_start:
-                v_cp[i-1], v_p[i-1], v_m[i-1], v_comp[i-1], m_inf, h_inf, m[i-1], h[i-1], j[i-1], I_leak[i-1], I_Na[i-1] = \
-                v_cp[i], v_p[i], v_m[i], v_comp[i], m_inf, h_inf, m[i], h[i], j[i], I_leak[i], I_Na[i]
-
-                circle += 1
-            i+=1
+        if (i-1)/time_ == (i-1)//time_ and circle!=n_start :
+            v_cp[i-1], v_p[i-1], v_m[i-1], v_comp[i-1], m_inf,\
+            h_inf, m[i-1], h[i-1], j[i-1], I_leak[i-1], I_Na[i-1] = \
+            v_cp[i], v_p[i], v_m[i], v_comp[i], m_inf, h_inf, m[i], h[i], j[i], I_leak[i], I_Na[i]
+            circle += 1
+            #print(circle, i)
         else:
-            i+=1
             circle = 0
-    return v_cp,  v_p, v_m, v_comp, I_leak[::n], I_Na[::n]#tau_m[::n], tau_h[::n], tau_j[::n],
+            i+=1
+    return  v_cp,  v_p, v_m, v_comp, I_leak, I_Na#tau_m[::n], tau_h[::n], tau_j[::n],
 
 
-#@profile
+@profile
 def calculate_I_out(x, *args):#, s0, c, protocol, ...):
     #print(x)
     y = x.copy()
@@ -158,8 +135,6 @@ def calculate_I_out(x, *args):#, s0, c, protocol, ...):
     v_rev = 18
 
 
-    #m_inf = np.zeros_like(t)
-    #h_inf = np.zeros_like(t)
     #
     v_cp = np.zeros_like(t)
     v_p = np.zeros_like(t)
@@ -189,13 +164,13 @@ def calculate_I_out(x, *args):#, s0, c, protocol, ...):
     #time_ = 25000
     #n_start = 15000
 
-
     I_error = np.zeros(len(t)//n)
     try:
         v_cp, v_p, v_m, v_comp, I_leak, I_Na = calculate_circle(n, t, v_c, v_rev,v_cp,v_p,v_m,v_comp, m_inf,h_inf ,m, h, j,I_leak, I_Na,y)
     except ZeroDivisionError:
         I_error+=1e100
         return I_error
+
     c_p = y[0]
     c_m = y[1]
     x_c_comp = y[-4]
@@ -204,20 +179,22 @@ def calculate_I_out(x, *args):#, s0, c, protocol, ...):
     I_p = 1e9 * c_p * (np.diff(v_p) / dt)[::n]
     I_comp=1e9 * x_c_comp* c_m * (np.diff(v_comp) / dt)[::n]
 
-    if len(I_c) != len(I_Na):
+    if len(I_c) != len(I_Na[::n]):
         I_c = np.concatenate((I_c,I_c[-1:]))
         I_p = np.concatenate((I_p,I_p[-1:]))
         I_comp = np.concatenate((I_comp,I_comp[-1:]))
 
     tau_z = 5e-4 # 1e-12 * 5e8
 
-    I_in = I_c  + I_leak + I_Na + I_p - I_comp
+    I_in = I_c  + I_leak[::n] + I_Na[::n] + I_p - I_comp
+    del I_c, I_leak,I_Na,I_p,I_comp, v_cp, v_p, v_m, v_comp
+    #gc.collect()
     I_out = np.zeros_like(I_in)
 
     I_out[0] = I_in[0]
     rush_larsen_easy_numba_helper(I_out, I_in, - dt * n / tau_z)
     #euler_numba_helper(I_out,I_in,(dt / tau_z))
-
+    del I_in
     if kwargs.get('graph', True):
         #plt.plot(V_m_list, label = 'command')
         plt.figure()
@@ -231,10 +208,10 @@ def calculate_I_out(x, *args):#, s0, c, protocol, ...):
         v_graph = np.arange(-95,35)
 
 
-        plt.figure()
-        plt.plot( m_inf, label = 'm_inf')
-        plt.plot( h_inf, label = 'h_inf')
-        plt.legend()
+        #plt.figure()
+        #plt.plot( m_inf, label = 'm_inf')
+        #plt.plot( h_inf, label = 'h_inf')
+        #plt.legend()
 
         #plt.figure()
         #tau_m_graph = 1 / (b0_m * np.exp((1-delta_m) * v_graph / (-s_m))
@@ -254,7 +231,7 @@ def calculate_I_out(x, *args):#, s0, c, protocol, ...):
 
         #plt.plot(tau_m, label = 'tau_m')
         #plt.plot(tau_h, label = 'tau_h')
-        plt.legend()
+        #plt.legend()
 
         plt.figure()
         plt.plot(I_c, label = 'I_c')
@@ -273,6 +250,7 @@ def calculate_I_out(x, *args):#, s0, c, protocol, ...):
 
     return I_out
 
+@profile
 def loss(x, *args):
     kwargs = args[-1]
     data = args[0]
@@ -368,7 +346,7 @@ kwargs_for_count = dict(v_list = v_all,
 #%%time
 @profile
 def diff_evol(a):
-    return  scop.differential_evolution(loss,bounds=log_bounds,args=(real_data_all, kwargs_for_count),maxiter = a,disp=True,popsize = 10,workers = 1, seed=42)
+    return  scop.differential_evolution(loss,bounds=log_bounds,args=(real_data_all, kwargs_for_count),maxiter=5,disp=True,popsize = 10,workers = 1, seed=42)
 
 res = diff_evol(3)
 print(res)

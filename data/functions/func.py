@@ -50,7 +50,7 @@ def euler_numba_helper(x, y, c):
 #@profile
 #@njit
 
-@profile
+#@profile
 @njit
 def calculate_circle(n, t, v_c, v_rev,v_cp,v_p,v_m,v_comp, m_inf,h_inf , m, h, j,I_leak, I_Na,args):
 
@@ -115,7 +115,7 @@ def calculate_circle(n, t, v_c, v_rev,v_cp,v_p,v_m,v_comp, m_inf,h_inf , m, h, j
             while circle!= n_start:
                 v_cp[i-1], v_p[i-1], v_m[i-1], v_comp[i-1], m_inf, h_inf, m[i-1], h[i-1], j[i-1], I_leak[i-1], I_Na[i-1] = \
                 v_cp[i], v_p[i], v_m[i], v_comp[i], m_inf, h_inf, m[i], h[i], j[i], I_leak[i], I_Na[i]
-                
+
                 circle += 1
             i+=1
         else:

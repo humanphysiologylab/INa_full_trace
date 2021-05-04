@@ -3,7 +3,7 @@
 #include "header.h"
 
 
-void calculate_circle( int n, int n_start, double *t, double *v_c,
+void calculate_circle( int n, int n_start,int len_one_trace, double *t, double *v_c,
    double v_rev,double *v_cp,double *v_p,double *v_m,double *v_comp,
    double *m,double *h,double *j,
    double *I_leak, double *I_Na, double *args){
@@ -65,7 +65,6 @@ void calculate_circle( int n, int n_start, double *t, double *v_c,
   int circle = 0;
   int i=1;
   while (i !=  n) {
-
       alpha_m  = a0_m * exp(v_m[i-1] / (s_m));
       beta_m = b0_m * exp(v_m[i-1] / (-delta_m));
 
@@ -93,14 +92,22 @@ void calculate_circle( int n, int n_start, double *t, double *v_c,
 
       I_leak[i] = g_leak * v_m[i];
       I_Na[i] = g_max * h[i] * pow(m[i],3) * (v_m[i] - v_rev) * j[i] ;
-      if ((i-1)%n_start == 0 && circle != n_start) {
-          v_cp[i-1], v_p[i-1], v_m[i-1], v_comp[i-1], m_inf,h_inf, m[i-1], h[i-1], j[i-1], I_leak[i-1], I_Na[i-1] = \
-          v_cp[i], v_p[i], v_m[i], v_comp[i], m_inf, h_inf, m[i], h[i], j[i], I_leak[i], I_Na[i];
-          circle += 1;
+      //if ((i-1)%n_start == 0 && circle != len_one_trace) {
+      if (circle < n_start) {
+          v_cp[i-1] = v_cp[i];
+          v_p[i-1] = v_p[i];
+          v_m[i-1] = v_m[i];
+          v_comp[i-1] = v_comp[i];
+          m[i-1] = m[i];
+          h[i-1] = h[i];
+          j[i-1] = j[i];
+          I_leak[i-1] = I_leak[i];
+          I_Na[i-1] = I_Na[i];
+          circle ++;
           //#print(circle, i)
         }
       else {
-          circle = 0;
+          if (circle++ > len_one_trace+n_start) circle = 0;
           i += 1;
         }
      }

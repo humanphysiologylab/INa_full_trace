@@ -9,6 +9,7 @@ void initialize_states_default(double *STATES) {
   STATES[3] = 0.;//m
   STATES[4] = 1.;//h
   STATES[5] = 1.;//j
+  STATES[6] = 0;//I_out
 }
 void initialize_constants_default(double *CONSTANTS, double *args) {
   CONSTANTS[0] = args[0];//c_p
@@ -65,6 +66,8 @@ void compute_algebraic(const double time,  double *STATES, double *CONSTANTS,  d
   //I_p = 1e9 * constants['c_p'] * (np.diff(df.v_p) / dt)
   ALGEBRAIC[10] = 1e9 * CONSTANTS[24] * CONSTANTS[1] *(CONSTANTS[29] - STATES[0])/(CONSTANTS[24]*CONSTANTS[1]*CONSTANTS[25]*CONSTANTS[15]*(1 - CONSTANTS[26]));// RATES[0]
   //I_comp = 1e9 * constants['x_c_comp']* constants['c_m'] * (np.diff(df.v_comp) / dt)
+  ALGEBRAIC[11] = ALGEBRAIC[6] + ALGEBRAIC[7] + ALGEBRAIC[8] - ALGEBRAIC[10];//+ ALGEBRAIC[9] 
+
 }
 
 void compute_rates(const double time,  double *STATES, double *CONSTANTS,  double *ALGEBRAIC, double *RATES){
@@ -84,4 +87,6 @@ void compute_rates(const double time,  double *STATES, double *CONSTANTS,  doubl
   //h[i] = h_inf + (h[i-1] - h_inf) * exp(-dt/tau_h);
   RATES[5] = (ALGEBRAIC[4] - STATES[5])/ALGEBRAIC[2];
   //j[i] = h_inf + (j[i-1] - h_inf) * exp(-dt/tau_j);
+  RATES[6] = (ALGEBRAIC[11] - STATES[6])/CONSTANTS[19];
+  //I_out = (I_in - I_out)/tau_z
   }

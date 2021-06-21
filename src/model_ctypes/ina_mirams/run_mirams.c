@@ -4,7 +4,7 @@
 #include <string.h>
 #include "../../liblsoda/src/common.h"
 #include "../../liblsoda/src/lsoda.h"
-#include "./ina.h"
+#include "./ina_mirams.h"
 
 int rhs(double t, double *y, double *ydot, void *data) {
 
@@ -38,7 +38,6 @@ int euler(double *t, double *y, void *data,
     return 0;
 }
 
-
 int run(double *S, double *C,
         double *time_array, double *voltage_command_array, int array_length,
         double *output_S, double *output_A) {
@@ -59,7 +58,7 @@ int run(double *S, double *C,
     opt.atol    = atol;
     opt.itask   = 1;
     //opt.hmin    = 1e-12;
-    opt.hmax    = 5e-5;
+    opt.hmax    = 5e-6;
 
     double atol_mult[] = {/*v_comp*/ 1e-2 , /*v_p*/ 1e-2, /*v_m*/ 1e-2,
                           /*m*/ 1e-4, /*h*/ 1e-4, /*j*/ 1e-4,
@@ -87,9 +86,10 @@ int run(double *S, double *C,
     lsoda_prepare(&ctx, &opt);
 
     for (int i = 1; i < array_length; i++) {
-        //t = time_array[i-1];
+
         double t_out = time_array[i];
-        data[29] = voltage_command_array[i];
+        //data[29] = voltage_command_array[i];
+        data[31] = voltage_command_array[i];
         lsoda(&ctx, S, &t, t_out);
         memcpy(output_S + i * S_SIZE, S, S_SIZE * sizeof(double));
         memcpy(output_A + i * A_SIZE, A, A_SIZE * sizeof(double));

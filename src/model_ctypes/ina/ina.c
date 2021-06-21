@@ -28,13 +28,13 @@ void compute_algebraic(const double time,  double *STATES, double *CONSTANTS,  d
   //I_leak[i] = g_leak * v_m[i];
   ALGEBRAIC[7] = CONSTANTS[17] * STATES[4] * pow(STATES[3],3) * STATES[5]* (STATES[2] - CONSTANTS[28]);
   //I_Na[i] = g_max * h[i] * pow(m[i],3) * (v_m[i] - v_rev) * j[i] ;
-  ALGEBRAIC[8] = 1e9 * CONSTANTS[1] * (ALGEBRAIC[5] + CONSTANTS[27] - STATES[2])/(CONSTANTS[15]*CONSTANTS[1]) - (ALGEBRAIC[6] + ALGEBRAIC[7]);// RATES[2];
+  ALGEBRAIC[8] = 1e9 * CONSTANTS[1] * (STATES[1] + CONSTANTS[27] - STATES[2])/(CONSTANTS[15]*CONSTANTS[1]) - (ALGEBRAIC[6] + ALGEBRAIC[7]);// RATES[2];
   //I_c = 1e9 * constants['c_m'] * (np.diff(df.v_m) / dt)
   ALGEBRAIC[9] = 1e9 * CONSTANTS[0] *(ALGEBRAIC[5] - STATES[1])/(CONSTANTS[0]*CONSTANTS[16]);// RATES[1];
   //I_p = 1e9 * constants['c_p'] * (np.diff(df.v_p) / dt)
   ALGEBRAIC[10] = 1e9 * CONSTANTS[24] * CONSTANTS[1] *(CONSTANTS[29] - STATES[0])/(CONSTANTS[24]*CONSTANTS[1]*CONSTANTS[25]*CONSTANTS[15]*(1 - CONSTANTS[26]));// RATES[0]
   //I_comp = 1e9 * constants['x_c_comp']* constants['c_m'] * (np.diff(df.v_comp) / dt)
-  ALGEBRAIC[11] = ALGEBRAIC[6] + ALGEBRAIC[7] + ALGEBRAIC[8]  + ALGEBRAIC[9];//- ALGEBRAIC[10];
+  ALGEBRAIC[11] = ALGEBRAIC[6] + ALGEBRAIC[7] + ALGEBRAIC[8]  + ALGEBRAIC[9]- ALGEBRAIC[10];
 
 }
 

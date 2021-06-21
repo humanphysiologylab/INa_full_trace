@@ -1,0 +1,10 @@
+name: /home/andrey/WORK/Projects/scipy_mpipool/env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - scipy
+  - numpy
+  - mpi4py
+prefix: /home/andrey/WORK/Projects/scipy_mpipool/env

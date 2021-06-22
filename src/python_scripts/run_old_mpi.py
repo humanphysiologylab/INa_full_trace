@@ -21,7 +21,7 @@ import csv
 #print(f'{rank} / {size}')
 
 sys.path.append("../src/python_scripts/")
-from functions import scale, rescale, OLD_calculate_full_trace, OLD_give_me_ina,loss
+from functions import scale, rescale, OLD_calculate_full_trace, OLD_give_me_ina,OLD_loss
 
 dirname = '../model_ctypes/ina/'
 
@@ -82,8 +82,7 @@ OLD_kwargs = dict(S = S,
               initial_state_A = OLD_initial_state_A,
               initial_state_len = OLD_initial_state_len,
               #function = ina,
-              OLD = True,
-              dt = 5e-7,
+              dt = 1e-7,
               filename_abs = OLD_filename_abs,
               t = t,
               v = v,
@@ -107,13 +106,13 @@ print('start')
 with MPIPool() as pool:
     pool.workers_exit()
     #exit()
-    result = scop.differential_evolution(loss,
+    result = scop.differential_evolution(OLD_loss,
                                     bounds=scale_bounds,
                                     args=(OLD_data, OLD_kwargs),
-                                    maxiter=10,
+                                    maxiter=1,
                                     #disp=False,
                                     updating='deferred',
-                                    popsize = 10,
+                                    popsize = 1,
                                     workers = pool.map,
                                     #callback = print_fun_DE,
                                     #disp = True,

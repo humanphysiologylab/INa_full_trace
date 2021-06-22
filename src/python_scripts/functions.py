@@ -217,7 +217,10 @@ def loss(y, *args):
     kwargs = args[-1]
     data = args[0]
     sample_weight = kwargs.get('sample_weight', None)
-    I_out = calculate_full_trace(y, *args)
+    if kwargs.get('OLD', False):
+        I_out = OLD_calculate_full_trace(y, *args)
+    else:
+        I_out = calculate_full_trace(y, *args)
     if np.any(np.isnan(I_out)):
         return np.inf
     if np.any(np.isinf(I_out)):

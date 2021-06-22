@@ -10,6 +10,8 @@ int rhs(double t, double *y, double *ydot, void *data) {
     compute_rates(t, y, C, A, ydot);
     return 0;
 }
+
+
 int euler(double *t, double *y, void *data,
           double dt, double t_out) {
 

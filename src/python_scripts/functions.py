@@ -23,8 +23,8 @@ def calculate_full_trace(y, *args):
     t = kwargs['t']#there should be time for the first step
     v_all = kwargs['v']
 
-    output_S = kwargs['output_S']
-    output_A = kwargs['output_A']
+    output_S = kwargs['output_S'].values.copy()
+    output_A = kwargs['output_A'].values.copy()
     bounds = kwargs['bounds']
 
     S = kwargs['S']
@@ -32,8 +32,8 @@ def calculate_full_trace(y, *args):
     t0 = kwargs['t0']
     v0 = kwargs['v0']
 
-    initial_state_S = kwargs['initial_state_S']
-    initial_state_A = kwargs['initial_state_A']
+    initial_state_S = kwargs['initial_state_S'].values.copy()
+    initial_state_A = kwargs['initial_state_A'].values.copy()
     initial_state_len = kwargs['initial_state_len']
     filename_abs = kwargs['filename_abs']
 
@@ -42,9 +42,9 @@ def calculate_full_trace(y, *args):
     ina = give_me_ina(filename_abs)
     ina.run(S.values.copy(), x,
             t0, v0, initial_state_len,
-            initial_state_S.values, initial_state_A.values)
+            initial_state_S, initial_state_A)
 
-    S0 = initial_state_S.values[-1]
+    S0 = initial_state_S[-1]
     #print(S0)
     n_sections = 20
     split_indices = np.linspace(0, len(v_all), n_sections + 1).astype(int)
@@ -56,9 +56,10 @@ def calculate_full_trace(y, *args):
         len_one_step = split_indices[k+1] - split_indices[k]
         status = ina.run(S0.copy(), x.copy(),
                          t1, v, len_one_step,
-                         output_S.values[start:end], output_A.values[start:end])
+                         output_S[start:end], output_A[start:end])
 
-    I_out = output_S.I_out.copy()
+    I_out = output_S.T[-1]
+    #I_out = output_S.I_out.copy()
     return I_out
 
 #####################################################################
@@ -69,8 +70,8 @@ def OLD_calculate_full_trace(y, *args):
     t = kwargs['t']#there should be time for the first step
     v_all = kwargs['v']
     dt = kwargs['dt']
-    output_S = kwargs['output_S']
-    output_A = kwargs['output_A']
+    output_S = kwargs['output_S'].values.copy()
+    output_A = kwargs['output_A'].values.copy()
     bounds = kwargs['bounds']
 
     S = kwargs['S']
@@ -78,8 +79,8 @@ def OLD_calculate_full_trace(y, *args):
     t0 = kwargs['t0']
     v0 = kwargs['v0']
 
-    initial_state_S = kwargs['initial_state_S']
-    initial_state_A = kwargs['initial_state_A']
+    initial_state_S = kwargs['initial_state_S'].values.copy()
+    initial_state_A = kwargs['initial_state_A'].values.copy()
     initial_state_len = kwargs['initial_state_len']
     filename_abs = kwargs['filename_abs']
 
@@ -88,9 +89,12 @@ def OLD_calculate_full_trace(y, *args):
     ina = OLD_give_me_ina(filename_abs)
     ina.run(dt, S.values.copy(), x,
             t0, v0, initial_state_len,
-            initial_state_S.values, initial_state_A.values)
+            #initial_state_S.values, initial_state_A.values)
+            initial_state_S, initial_state_A)
 
-    S0 = initial_state_S.values[-1]
+    #S0 = initial_state_S.values[-1]
+    S0 = initial_state_S[-1]
+
 
     n_sections = 20
     split_indices = np.linspace(0, len(v_all), n_sections + 1).astype(int)
@@ -102,9 +106,11 @@ def OLD_calculate_full_trace(y, *args):
         len_one_step = split_indices[k+1] - split_indices[k]
         status = ina.run(dt,S0.copy(), x.copy(),
                          t1, v, len_one_step,
-                         output_S.values[start:end], output_A.values[start:end])
+                         #output_S.values[start:end], output_A.values[start:end])
+                        output_S[start:end], output_A[start:end])
 
-    I_out = output_S.I_out.copy()
+    #I_out = output_S.I_out.copy()
+    I_out = output_S.T[-1]
     #I_out = initial_state_S.I_out.copy()
 
     return I_out

@@ -37,8 +37,24 @@ def calculate_full_trace(y, *args):
     initial_state_len = kwargs['initial_state_len']
     filename_abs = kwargs['filename_abs']
 
-    x = np.concatenate((rescale(y.copy(), *bounds), [18.,-80.]))
 
+    if kwargs.get('rescale'):
+        #print('rescale')
+        x = np.concatenate((rescale(y.copy(), *bounds), [18.,-80.]))
+
+    else:
+        #print('Oh NOOOOO, my dear, there no rescale at all!!!')
+        #x = np.concatenate((y.copy(), [18.,-80.]))
+        x = np.concatenate((y.copy(), [18.,-80.]))
+    if kwargs.get('log', None):
+        #print('log')
+        x[:4] = np.exp(x[:4])
+        x[6:8] = np.exp(x[6:8])
+        x[10:12] = np.exp(x[10:12])
+        x[14:20] = np.exp(x[14:20])
+        x[24:28] = np.exp(x[24:28])
+        x[27] = (x[27]-5.5)*50/9#want to rescale [-25,25] -> [1,10] and in logarytmic it would be [0,1]
+    #print(x)
     ina = give_me_ina(filename_abs)
     ina.run(S.values.copy(), x,
             t0, v0, initial_state_len,
@@ -83,8 +99,12 @@ def OLD_calculate_full_trace(y, *args):
     initial_state_A = kwargs['initial_state_A'].values.copy()
     initial_state_len = kwargs['initial_state_len']
     filename_abs = kwargs['filename_abs']
-
-    x = np.concatenate((rescale(y.copy(), *bounds), [18.,-80.]))
+    if kwargs.get('rescale'):
+        #print('rescale')
+        x = np.concatenate((rescale(y.copy(), *bounds), [18.,-80.]))
+    else:
+        #print('Oh NOOOOO, my dear, there no rescale at all!!!')
+        x = np.concatenate((y.copy(), [18.,-80.]))
 
     ina = OLD_give_me_ina(filename_abs)
     ina.run(dt, S.values.copy(), x,
@@ -244,3 +264,15 @@ def OLD_loss(y, *args):
     if np.any(np.isinf(I_out)):
         return np.inf
     return MSE(data, I_out, sample_weight=sample_weight)
+
+######################################################################
+
+def spec_log_scale(x):
+    y = x.copy()
+    y[:4] = np.log(y[:4])
+    y[6:8] = np.log(y[6:8])
+    y[10:12] = np.log(y[10:12])
+    y[14:20] = np.log(y[14:20])
+    y[24:27] = np.log(y[24:27])
+    y[27] = np.log(9*y[27]/50 + 5.5)
+    return y

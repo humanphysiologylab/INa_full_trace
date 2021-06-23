@@ -21,7 +21,7 @@ import csv
 #print(f'{rank} / {size}')
 
 sys.path.append("../src/python_scripts/")
-from functions import scale, rescale, calculate_full_trace, give_me_ina,loss
+from functions import scale, rescale, calculate_full_trace, give_me_ina,loss,spec_log_scale
 
 dirname = '../model_ctypes/ina/'
 
@@ -86,12 +86,15 @@ kwargs = dict(S = S,
               output_A = output_A,
               bounds = bounds,
               sample_weight = weight,
+              log = True,
              )
+
+spec_log_bounds = np.array([spec_log_scale(bounds[0]),spec_log_scale(bounds[1])])
 
 data = pd.read_csv('../../data/training/2020_12_19_0035 I-V INa 11,65 pF.atf' ,delimiter= '\t', header=None, skiprows = 11)
 exp_data = np.concatenate([data[k] for k in range(1,21)])
 
-x0 = scale(C.value.values[:-2],*bounds)
+x0 = spec_log_scale(C.value.values[:-2].copy())
 
 #start_time = time.process_time ()
 data = calculate_full_trace(x0, kwargs)
@@ -106,7 +109,7 @@ with MPIPool() as pool:
     pool.workers_exit()
     #exit()
     result = scop.differential_evolution(loss,
-                                    bounds=scale_bounds,
+                                    bounds=spec_log_bounds.T,
                                     args=(data, kwargs),
                                     maxiter=100,
                                     disp = True,

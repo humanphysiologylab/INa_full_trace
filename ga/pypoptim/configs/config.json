@@ -1,0 +1,59 @@
+{
+    # "initial_population_filename": "smth",
+
+    "n_organisms": 4096,
+    "n_elites": 128,
+    "n_generations": 500,
+    "output_folder_name": "../results/",
+
+    "crossover_rate": 1.0,
+    "mutation_rate": 1.0,
+
+    "loss": "RMSE",
+
+    "columns_control": ["I"],
+    "columns_model": ["Iout"],
+
+    "filename_so": "TODO",
+    "filename_legend_states": "TODO",
+    "filename_legend_constants": "TODO",
+
+    "experimental_conditions": {
+
+        "common": {
+
+            "params": {
+
+                "param_name_x": 140,
+                "param_name_y": 2.0,
+
+                "param_name_1": {
+                    "bounds": [-42, 101],
+                    "gamma": 0.015, # TODO
+                    "is_multiplier": false  # default=false
+                },
+
+                "param_name_2": {
+                    "bounds": [0.1, 10],
+                    "gamma": 0.015,
+                    "is_multiplier": true
+                }
+
+            }
+        },
+
+        "trace_1": {
+            "params": {
+                # TODO ?? ?
+            },
+            "filename_phenotype": "....../trace_1.csv",  # must contain column named `columns_control`
+            # "filename_state": "...",
+            # "filename_stim_protocol": "..."
+        },
+
+        "vasya": {
+            # same stuff
+        }
+    }
+
+}

@@ -13,21 +13,21 @@ void initialize_states_default(double *STATES) {
 
 void compute_algebraic(const double time,  double *STATES, double *CONSTANTS,  double *ALGEBRAIC){//, double *RATES){
   ALGEBRAIC[0] = 1/(CONSTANTS[2] * exp(STATES[2]/CONSTANTS[5]) + CONSTANTS[3]*exp(- STATES[2]/CONSTANTS[4]));
-  //tau_m = 1 / (a0_m * exp(v_m[i-1] / (s_m)) + b0_m * exp(v_m[i-1] / (-delta_m)))
+  //tau_m = 1 / (a0_m * exp(v_m / s_m) + b0_m * exp(- v_m / delta_m))
   ALGEBRAIC[1] = 1/(CONSTANTS[6] * exp(- STATES[2]/CONSTANTS[9]) + CONSTANTS[7]*exp(STATES[2]/CONSTANTS[8]));
-  //tau_h = 1 / (a0_h * exp(v_m[i-1] / (-s_h)) + b0_h * exp(v_m[i-1] / (delta_h)))
+  //tau_h = 1 / (a0_h * exp(-v_m / s_h) + b0_h * exp(v_m / delta_h))
   ALGEBRAIC[2] = CONSTANTS[14] + 1/(CONSTANTS[10] * exp( STATES[2]/CONSTANTS[13]) + CONSTANTS[11]*exp(-STATES[2]/CONSTANTS[12]));
-  //tau_j = tau_j_const + 1 / (a0_j * exp(v_m[i-1] / (s_j)) + b0_j * exp(v_m[i-1] / (-delta_j)))
-  ALGEBRAIC[3] = 1 / (1 + exp((-CONSTANTS[20] - STATES[2])/CONSTANTS[22]));
-  //m_inf = 1 / (1 + exp((- v_half_m - v_m[i]) / k_m));
+  //tau_j = tau_j_const + 1 / (a0_j * exp(v_m / s_j) + b0_j * exp(- v_m / delta_j))
+  ALGEBRAIC[3] = 1 / (1 + exp(-(CONSTANTS[20] + STATES[2])/CONSTANTS[22]));
+  //m_inf = 1 / (1 + exp(-(v_half_m + v_m) / k_m));
   ALGEBRAIC[4] = 1 / (1 + exp((CONSTANTS[21] + STATES[2])/CONSTANTS[23]));
-  //h_inf = 1 / (1 + exp((v_half_h + v_m[i]) / k_h));
+  //h_inf = 1 / (1 + exp((v_half_h + v_m) / k_h));
   ALGEBRAIC[5] = CONSTANTS[29] + (CONSTANTS[29] - STATES[0])*(1/(1 - CONSTANTS[26]) - 1);
-  //v_cp[i] =  v_c[i] + (v_c[i] - v_comp[i])*(1/(1-alpha) - 1);
+  //v_cp =  v_c + (v_c - v_comp)*(1/(1-alpha) - 1);
   ALGEBRAIC[6] = CONSTANTS[18] * STATES[2];
-  //I_leak[i] = g_leak * v_m[i];
+  //I_leak = g_leak * v_m;
   ALGEBRAIC[7] = CONSTANTS[17] * STATES[4] * pow(STATES[3],3) * STATES[5]* (STATES[2] - CONSTANTS[28]);
-  //I_Na[i] = g_max * h[i] * pow(m[i],3) * (v_m[i] - v_rev) * j[i] ;
+  //I_Na = g_max * h * pow(m,3) * (v_m - v_rev) * j ;
 
   //ALGEBRAIC[8] = 1e9 * CONSTANTS[1] * (STATES[1] + CONSTANTS[27] - STATES[2])/(CONSTANTS[15]*CONSTANTS[1]) - (ALGEBRAIC[6] + ALGEBRAIC[7]);// RATES[2];
   //I_c = 1e9 * constants['c_m'] * (np.diff(df.v_m) / dt)

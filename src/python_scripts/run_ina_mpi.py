@@ -1,4 +1,5 @@
 result= False
+
 if __name__ == '__main__':
     import pygmo as pg
     from pygmo import *
@@ -16,6 +17,7 @@ if __name__ == '__main__':
     from mpi4py import MPI
     import time
     import csv
+
 
 
 
@@ -130,16 +132,17 @@ if __name__ == '__main__':
 
     t = time.time()
     prob = pg.problem(ina_function())
-    algo = algorithm(ihs(1))
+    algo = algorithm(sga(100))
     topo = pg.fully_connected()
-    archi = pg.archipelago(n=2 ,t = topo, algo=algo, prob=prob, pop_size=5, seed = 38)
+    #print(topo. get_extra_info())
+    archi = pg.archipelago(n=2 ,t = topo, algo=algo, prob=prob, pop_size=100, seed = 38)
     t -= time.time()
     t1 = time.time()
     archi.evolve()
 
     archi.wait_check()
     t1 -= time.time()
-    print(t, t1, archi)
+    print(-t, -t1, archi)
     print(archi.get_champions_f())
     with open(file_to_write, "w") as csv_file:
         writer = csv.writer(csv_file, delimiter=",")

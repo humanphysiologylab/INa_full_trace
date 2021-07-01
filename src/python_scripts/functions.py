@@ -55,6 +55,8 @@ def calculate_full_trace(y, *args):
         x[24:28] = np.exp(x[24:28])
         x[27] = (x[27]-5.5)*50/9#want to rescale [-25,25] -> [1,10] and in logarytmic it would be [0,1]
     #print(x)
+    if kwargs.get('old_log', None):
+        x[:-10] = np.exp(x[:-10])
     ina = give_me_ina(filename_abs)
     ina.run(S.values.copy(), x,
             t0, v0, initial_state_len,
@@ -248,7 +250,7 @@ def loss(y, *args):
         return np.inf
     if np.any(np.isinf(I_out)):
         return np.inf
-    return MSE(data, I_out, sample_weight=sample_weight)
+    return MSE(data, I_out)#, sample_weight=sample_weight)
 
 #####################################################################
 
@@ -274,5 +276,19 @@ def spec_log_scale(x):
     y[10:12] = np.log(y[10:12])
     y[14:20] = np.log(y[14:20])
     y[24:27] = np.log(y[24:27])
-    y[27] = np.log(9*y[27]/50 + 5.5)
+    y[27] = np.log(9*y[27]/30 + 5.5)
+    return y
+
+
+######################################################################
+
+
+def despec_log_scale(x):
+    y = x.copy()
+    y[:4] = np.exp(y[:4])
+    y[6:8] = np.exp(y[6:8])
+    y[10:12] = np.exp(y[10:12])
+    y[14:20] = np.exp(y[14:20])
+    y[24:27] = np.exp(y[24:27])
+    y[27] = np.exp(30*(y[27] - 5.5) / 9)
     return y

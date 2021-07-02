@@ -40,11 +40,13 @@ int euler(double *t, double *y, void *data,
 
 
 int run(double *S, double *C,
-        double *time_array, double *voltage_command_array, int array_length,
-        double *output_S, double *output_A) {
+        double *time_array, double *voltage_command_array,
+        int array_length, double *output_S){
+
 
     double data[C_SIZE + A_SIZE];
     double *A = data + C_SIZE;
+
 
     for (int i = 0; i < C_SIZE; ++i) {
         data[i] = C[i];
@@ -76,7 +78,7 @@ int run(double *S, double *C,
     memcpy(output_S, S, S_SIZE * sizeof(double));
 
     compute_algebraic(t, S, C, A);
-    memcpy(output_A, A, A_SIZE * sizeof(double));
+    //memcpy(output_A, A, A_SIZE * sizeof(double));
 
     struct lsoda_context_t ctx = {
         .function = rhs,
@@ -85,14 +87,12 @@ int run(double *S, double *C,
         .state = 1,
     };
     lsoda_prepare(&ctx, &opt);
-
     for (int i = 1; i < array_length; i++) {
         //t = time_array[i-1];
         double t_out = time_array[i];
         data[29] = voltage_command_array[i];
         lsoda(&ctx, S, &t, t_out);
         memcpy(output_S + i * S_SIZE, S, S_SIZE * sizeof(double));
-        memcpy(output_A + i * A_SIZE, A, A_SIZE * sizeof(double));
 
         if (ctx.state != 2) {
             return ctx.state;

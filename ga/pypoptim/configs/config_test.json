@@ -1,0 +1,59 @@
+{
+  # "initial_population_filename": "smth",
+
+    "n_organisms": 64,
+    "n_elites": 4,
+    "n_generations": 10,
+    "output_folder_name": "../results/",
+
+    "crossover_rate": 1.0,
+    "mutation_rate": 1.0,
+
+    "loss": "RMSE",
+
+    "columns_control": ["V"],
+    "columns_model": ["Iout"],
+
+    "filename_so": "../../../src/model_ctypes/ina/ina.so",
+    "filename_legend_states": "../../../src/model_ctypes/ina/legend_states.csv",
+    "filename_legend_constants": "../../../src/model_ctypes/ina/legend_constants.csv",
+
+    "kwargs": {
+      "filename_legend_states": "../../../src/model_ctypes/ina/legend_states.csv"
+      #"rescale": True,
+      #"old_log": true
+      # "log": True,
+    },
+
+  "experimental_conditions": {
+
+    "common": {
+
+      "params": {
+
+        "с_p": {
+          "bounds": [1e-14, 5e-12],
+          "gamma": 1,
+          "is_multiplier": false
+        },
+        "c_m": {
+          "bounds": [1e-11, 9e-11],
+          "gamma": 1,
+          "is_multiplier": false
+        }
+      }
+    },
+
+    "trace_1": {
+      "params": {
+        "v_off": {
+                "bounds": [-15.0, 15.0],
+                "gamma": 1,
+                "is_multiplier": false
+              }},
+      "filename_phenotype": "../../../data/training/artificial_data.csv",
+      "filename_protocol": "../../../data/protocols/protocol_79.csv",
+      "filename_initial_state_protocol": "../../../data/protocols/protocol_initial_state.csv"
+    }
+  }
+}

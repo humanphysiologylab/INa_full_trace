@@ -19,24 +19,19 @@ def rescale(x, min_bound, max_bound):
 def calculate_full_trace(y, *args):
 
     kwargs = args[-1]
-
-    t = kwargs['t']#there should be time for the first step
-    v_all = kwargs['v']
-
-    output_S = kwargs['output_S'].values.copy()
-    output_A = kwargs['output_A'].values.copy()
-    bounds = kwargs['bounds']
-
     S = kwargs['S']
 
     t0 = kwargs['t0']
     v0 = kwargs['v0']
+    initial_len = len(t0)
 
-    initial_state_S = kwargs['initial_state_S'].values.copy()
-    initial_state_A = kwargs['initial_state_A'].values.copy()
-    initial_state_len = kwargs['initial_state_len']
+    t = kwargs['t']
+    v_all = kwargs['v']
+    output_len = len(t)
+
+    #bounds = kwargs['bounds']
+
     filename_abs = kwargs['filename_abs']
-
 
     if kwargs.get('rescale'):
         #print('rescale')
@@ -54,16 +49,17 @@ def calculate_full_trace(y, *args):
         x[14:20] = np.exp(x[14:20])
         x[24:28] = np.exp(x[24:28])
         x[27] = (x[27]-5.5)*50/9#want to rescale [-25,25] -> [1,10] and in logarytmic it would be [0,1]
-    #print(x)
+
     if kwargs.get('old_log', None):
         x[:-10] = np.exp(x[:-10])
     ina = give_me_ina(filename_abs)
-    ina.run(S.values.copy(), x,
-            t0, v0, initial_state_len,
-            initial_state_S, initial_state_A)
 
-    S0 = initial_state_S[-1]
-    #print(S0)
+    S_initial = np.zeros((initial_len, len(S)))
+
+    ina.run(S.values.copy(), x,
+            t0, v0, initial_len, S_initial)
+
+    S_output = np.zeros((output_len, len(S)))
     n_sections = 20
     split_indices = np.linspace(0, len(v_all), n_sections + 1).astype(int)
 
@@ -72,11 +68,11 @@ def calculate_full_trace(y, *args):
         v = v_all[start:end]
         t1 = t[start:end] - t[start]
         len_one_step = split_indices[k+1] - split_indices[k]
-        status = ina.run(S0.copy(), x.copy(),
+        status = ina.run(S_initial[-1].copy(), x.copy(),
                          t1, v, len_one_step,
-                         output_S[start:end], output_A[start:end])
+                         S_output[start:end])
 
-    I_out = output_S.T[-1]
+    I_out = S_output.T[-1]
     #I_out = output_S.I_out.copy()
     return I_out
 
@@ -183,7 +179,7 @@ def give_me_ina(filename):
         np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
         ctypes.c_int,
         np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS'),
-        np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS')
+        #np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS')
     ]
     ina.run.restype = ctypes.c_int
     return ina

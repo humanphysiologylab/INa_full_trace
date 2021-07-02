@@ -8,6 +8,7 @@ import subprocess
 
 import numpy as np
 import pandas as pd
+import sys
 
 import ctypes
 import git
@@ -19,15 +20,12 @@ from pypoptim.helpers import batches_from_list, argmax_list_of_dicts, \
 from pypoptim.algorythm.ga import do_step, transform_genes_bounds, transform_genes_bounds_back
 
 from pypoptim.cardio import create_genes_dict_from_config, create_constants_dict_from_config, \
-                            # init_population, init_population_from_backup, \
-                            # run_model_ctypes,
-                            # update_phenotype_state, update_fitness, \
                             generate_bounds_gammas_mask_multipliers, \
                             save_epoch
 
 from utils import init_population, init_population_from_backup, \
                   run_model_ctypes, \
-                  update_phenotype_state, update_fitness
+                  update_phenotype, update_fitness
 
 #### ##    ## #### ########
  ##  ###   ##  ##     ##
@@ -81,14 +79,53 @@ filename_so_abs = os.path.abspath(filename_so)
 
 dirname_so = os.path.split(filename_so_abs)[0]
 for rule in ['clean'], []:
-    popenargs = ["make"] + rule + ["-C", "../src/model_ctypes/_koivumaki/"]
+    popenargs = ["make"] + rule + ["-C", dirname_so]
     output = subprocess.check_output(popenargs)
     print(output.decode())
 
 model = ctypes.CDLL(filename_so_abs)
 
-# configure your ctypes stuff
-#...
+    # void initialize_states_default(double *STATES)
+model.initialize_states_default.argtypes = [
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS')
+]
+model.initialize_states_default.restype = ctypes.c_void_p
+
+
+# void compute_rates(const double time,  double *STATES, double *CONSTANTS,  double *ALGEBRAIC, double *RATES)
+model.compute_rates.argtypes = [
+    ctypes.c_double,
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS')
+]
+model.compute_rates.restype = ctypes.c_void_p
+
+
+# void compute_algebraic(const double time,  double *STATES, double *CONSTANTS,  double *ALGEBRAIC)
+model.compute_algebraic.argtypes = [
+    ctypes.c_double,
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS')
+]
+model.compute_algebraic.restype = ctypes.c_void_p
+
+
+# int run(double *S, double *C,
+#         double *time_array, double *voltage_command_array, int array_length,
+#         double *output_S, double *output_A)
+model.run.argtypes = [
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+    ctypes.c_int,
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS'),
+    #np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS')
+]
+model.run.restype = ctypes.c_int
 
 # create a new attribute of the function
 run_model_ctypes.model = model  # <- will be used later
@@ -112,6 +149,19 @@ for exp_cond_name, exp_cond in config['experimental_conditions'].items():
     filename_phenotype = os.path.normpath(os.path.join(config_path, exp_cond['filename_phenotype']))
     exp_cond['phenotype'] = pd.read_csv(filename_phenotype)
     exp_cond['filename_phenotype'] = filename_phenotype
+
+    filename_protocol = os.path.normpath(os.path.join(config_path, exp_cond['filename_protocol']))
+    exp_cond['protocol'] = pd.read_csv(filename_protocol)
+    exp_cond['filename_protocol'] = filename_protocol
+
+    filename_initial_state_protocol = os.path.normpath(os.path.join(config_path, exp_cond['filename_initial_state_protocol']))
+    exp_cond['initial_state_protocol'] =  pd.read_csv(filename_initial_state_protocol)
+    exp_cond['filename_initial_state_protocol'] = filename_protocol
+
+
+filename_kwargs = os.path.normpath(os.path.join(config_path, config['kwargs']['filename_legend_states']))
+config['kwargs']['states'] =  pd.read_csv(filename_kwargs, index_col='name')
+config['kwargs']['filename_legend_states'] = filename_kwargs
 
 
 output_folder_name = os.path.normpath(os.path.join(config_path, config.get("output_folder_name", "./output")))
@@ -171,11 +221,7 @@ n_orgsnisms_per_process = config['runtime']['n_organisms'] // comm_size
 
 genes_size = sum(map(len, config['runtime']['genes_dict'].values()))
 
-state_size = states_initial.size
-state_shape = states_initial.shape
-
 recvbuf_genes = np.empty([comm_size, n_orgsnisms_per_process * genes_size])
-recvbuf_state = np.empty([comm_size, n_orgsnisms_per_process * state_size])
 recvbuf_fitness = np.empty([comm_size, n_orgsnisms_per_process * 1])
 
 
@@ -221,7 +267,7 @@ for epoch in range(config['n_generations']):
 
     for i, organism in enumerate(batch):
 
-        status = update_phenotype_state(organism, config)  # TODO
+        status = update_phenotype(organism, config)  # TODO
 
         FLAG_INVALID = False
         msg_invalid = "Invalid organism:\n"
@@ -236,6 +282,7 @@ for epoch in range(config['n_generations']):
 
         if FLAG_INVALID:
             organism['fitness'] = np.NINF
+            print(msg_invalid)
             del organism['phenotype']
         else:
             update_fitness(organism, config)  # TODO
@@ -257,23 +304,17 @@ for epoch in range(config['n_generations']):
 
     timer.start('gather_sendbuf')
     sendbuf_genes = np.concatenate([organism['genes'] for organism in batch])
-    sendbuf_state = np.concatenate([organism['state'].values.flatten() for organism in batch])
-    #sendbuf_phenotype = np.concatenate([np.concatenate(organism['phenotype']) for organism in batch])
     sendbuf_fitness = np.array([organism['fitness'] for organism in batch])
     assert(not np.any(np.isnan(sendbuf_fitness)))
     timer.end('gather_sendbuf')
 
     timer.start('gather_allgather')
     comm.Allgatherv(sendbuf_genes, recvbuf_genes)
-    comm.Allgatherv(sendbuf_state, recvbuf_state)
-    #comm.Allgatherv(sendbuf_phenotype, recvbuf_phenotype)
     comm.Allgatherv(sendbuf_fitness, recvbuf_fitness)
     timer.end('gather_allgather')
 
     timer.start('gather_recvbuf')
     recvbuf_genes = recvbuf_genes.reshape((config['runtime']['n_organisms'], genes_size))
-    recvbuf_state = recvbuf_state.reshape((config['runtime']['n_organisms'], *state_shape))
-    #recvbuf_phenotype = recvbuf_phenotype.reshape((config['n_organisms'], phenotype_size))
     recvbuf_fitness = recvbuf_fitness.flatten()
     timer.end('gather_recvbuf')
 
@@ -281,8 +322,7 @@ for epoch in range(config['n_generations']):
     #  assert (not np.any(np.isnan(recvbuf_fitness)))
 
     population = [dict(genes     = recvbuf_genes[i],  # pd.Series(data=recvbuf_genes[i], index=m_index),
-                       state     = recvbuf_state[i],  # pd.DataFrame(recvbuf_state[i], columns=[exp_cond_name for exp_cond_name in config['experimental_conditions'] if exp_cond_name != 'common']),
-                       # phenotype = np.split(recvbuf_phenotype[i].copy(), indices_or_sections=phenotype_split_indices),
+                       state     = None,
                        fitness   = recvbuf_fitness[i]) for i in range(config['runtime']['n_organisms'])]
     timer.end('gather_population')
 
@@ -321,9 +361,9 @@ for epoch in range(config['n_generations']):
             df.to_csv(filename_phenotype_save, index=False)
 
             # Append last epoch to previous
-            filename_phenotype_save_binary = os.path.join(config['runtime']['output']['output_folder_name_phenotype'],
+            filename_phenotype_save_bmodelry = os.path.join(config['runtime']['output']['output_folder_name_phenotype'],
                                                           f"phenotype_{exp_cond_name}.bin")
-            with open(filename_phenotype_save_binary, 'ba+' if epoch else 'bw') as f:
+            with open(filename_phenotype_save_bmodelry, 'ba+' if epoch else 'bw') as f:
                 df.values.astype(np.float32).tofile(f)
 
     timer.end('save_phenotype')
@@ -378,10 +418,7 @@ for epoch in range(config['n_generations']):
                                                         mask_multipliers=mask_multipliers)
 
         organism['genes'] = pd.Series(data=organism['genes'], index=config['runtime']['m_index'])
-        organism['state'] = pd.DataFrame(organism['state'],
-                                         columns=[exp_cond_name for exp_cond_name in config['experimental_conditions']
-                                                  if exp_cond_name != 'common'])
-        organism['state'].index = states_initial.index
+        organism['state'] = None
 
     timer.end('gene')
 

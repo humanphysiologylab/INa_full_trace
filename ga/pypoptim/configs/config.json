@@ -1,9 +1,9 @@
 {
-    # "initial_population_filename": "smth",
+  # "initial_population_filename": "smth",
 
-    "n_organisms": 4096,
-    "n_elites": 128,
-    "n_generations": 500,
+    "n_organisms": 64,
+    "n_elites": 4,
+    "n_generations": 10,
     "output_folder_name": "../results/",
 
     "crossover_rate": 1.0,
@@ -11,49 +11,173 @@
 
     "loss": "RMSE",
 
-    "columns_control": ["I"],
+    "columns_control": ["V"],
     "columns_model": ["Iout"],
 
-    "filename_so": "TODO",
-    "filename_legend_states": "TODO",
-    "filename_legend_constants": "TODO",
+    "filename_so": "../../../src/model_ctypes/ina/ina.so",
+    "filename_legend_states": "../../../src/model_ctypes/ina/legend_states.csv",
+    "filename_legend_constants": "../../../src/model_ctypes/ina/legend_constants.csv",
 
-    "experimental_conditions": {
+    "kwargs": {
+      "filename_legend_states": "../../../src/model_ctypes/ina/legend_states.csv"
+      #"rescale": True,
+      #"old_log": true
+      # "log": True,
+    },
 
-        "common": {
+  "experimental_conditions": {
 
-            "params": {
+    "common": {
 
-                "param_name_x": 140,
-                "param_name_y": 2.0,
+      "params": {
 
-                "param_name_1": {
-                    "bounds": [-42, 101],
-                    "gamma": 0.015, # TODO
-                    "is_multiplier": false  # default=false
-                },
-
-                "param_name_2": {
-                    "bounds": [0.1, 10],
-                    "gamma": 0.015,
-                    "is_multiplier": true
-                }
-
-            }
+        "с_p": {
+          "bounds": [1e-14, 5.0000000000000005e-12],
+          "gamma": 1,
+          "is_multiplier": true
         },
-
-        "trace_1": {
-            "params": {
-                # TODO ?? ?
-            },
-            "filename_phenotype": "....../trace_1.csv",  # must contain column named `columns_control`
-            # "filename_state": "...",
-            # "filename_stim_protocol": "..."
+        "c_m": {
+          "bounds": [1.0000000000000001e-11, 9.000000000000001e-11],
+          "gamma": 1,
+          "is_multiplier": true
         },
-
-        "vasya": {
-            # same stuff
+        "a0_m": {
+          "bounds": [1000.0, 10000.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "b0_m": {
+          "bounds": [10.0, 100.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "delta_m": {
+          "bounds": [10.0, 100.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "s_m": {
+          "bounds": [1.0, 10.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "a0_h": {
+          "bounds": [0.1, 1.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "b0_h": {
+          "bounds": [100.0, 1000.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "delta_h": {
+          "bounds": [10.0, 100.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "s_h": {
+          "bounds": [10.0, 100.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "a0_j": {
+          "bounds": [0.1, 1.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "b0_j": {
+          "bounds": [10000.0, 100000.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "delta_j": {
+          "bounds": [1.0, 10.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "s_j": {
+          "bounds": [100.0, 1000.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "tau_j_const": {
+          "bounds": [0.0001, 0.001],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "R": {
+          "bounds": [10000000.0, 100000000.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "R_f": {
+          "bounds": [100000.0, 1000000.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "g_max": {
+          "bounds": [10000.0, 1000000.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "g_leak": {
+          "bounds": [0.1, 10.0],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "tau_z": {
+          "bounds": [1e-05, 0.001],
+          "gamma": 1,
+          "is_multiplier": true
+        },
+        "v_half_m": {
+          "bounds": [10.0, 60.0],
+          "gamma": 1,
+          "is_multiplier": false
+        },
+        "v_half_h": {
+          "bounds": [50.0, 100.0],
+          "gamma": 1,
+          "is_multiplier": false
+        },
+        "k_m": {
+          "bounds": [1.0, 10.0],
+          "gamma": 1,
+          "is_multiplier": false
+        },
+        "k_h": {
+          "bounds": [1.0, 10.0],
+          "gamma": 1,
+          "is_multiplier": false
+        },
+        "x_c_comp": {
+          "bounds": [0.01, 1.1],
+          "gamma": 1,
+          "is_multiplier": false
+        },
+        "x_r_comp": {
+          "bounds": [0.01, 1.1],
+          "gamma": 1,
+          "is_multiplier": false
+        },
+        "alpha": {
+          "bounds": [0.7, 0.8],
+          "gamma": 1,
+          "is_multiplier": false
         }
-    }
+      }
+    },
 
+    "trace_1": {
+      "params": {        "v_off": {
+                "bounds": [-15.0, 15.0],
+                "gamma": 1,
+                "is_multiplier": false
+              }},
+      "filename_phenotype": "../../../data/training/artificial_data.csv",
+      "filename_protocol": "../../../data/protocols/protocol_79.csv",
+      "filename_initial_state_protocol": "../../../data/protocols/protocol_initial_state.csv"
+    }
+  }
 }

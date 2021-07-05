@@ -1,9 +1,9 @@
 {
   # "initial_population_filename": "smth",
 
-    "n_organisms": 64,
-    "n_elites": 4,
-    "n_generations": 10,
+    "n_organisms": 128,
+    "n_elites": 8,
+    "n_generations": 1000,
     "output_folder_name": "../results/",
 
     "crossover_rate": 1.0,
@@ -19,7 +19,8 @@
     "filename_legend_constants": "../../../src/model_ctypes/ina/legend_constants.csv",
 
     "kwargs": {
-      "filename_legend_states": "../../../src/model_ctypes/ina/legend_states.csv"
+      "filename_legend_states": "../../../src/model_ctypes/ina/legend_states.csv",
+      "filename_legend_algebraic": "../../../src/model_ctypes/ina/legend_algebraic.csv"
       #"rescale": True,
       #"old_log": true
       # "log": True,
@@ -31,103 +32,103 @@
 
       "params": {
 
-        "с_p": {
-          "bounds": [1e-14, 5.0000000000000005e-12],
+        "c_p": {
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "c_m": {
-          "bounds": [1.0000000000000001e-11, 9.000000000000001e-11],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "a0_m": {
-          "bounds": [1000.0, 10000.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "b0_m": {
-          "bounds": [10.0, 100.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "delta_m": {
-          "bounds": [10.0, 100.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "s_m": {
-          "bounds": [1.0, 10.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "a0_h": {
-          "bounds": [0.1, 1.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "b0_h": {
-          "bounds": [100.0, 1000.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "delta_h": {
-          "bounds": [10.0, 100.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "s_h": {
-          "bounds": [10.0, 100.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "a0_j": {
-          "bounds": [0.1, 1.0],
+          "bounds":[0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "b0_j": {
-          "bounds": [10000.0, 100000.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "delta_j": {
-          "bounds": [1.0, 10.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "s_j": {
-          "bounds": [100.0, 1000.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "tau_j_const": {
-          "bounds": [0.0001, 0.001],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "R": {
-          "bounds": [10000000.0, 100000000.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "R_f": {
-          "bounds": [100000.0, 1000000.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "g_max": {
-          "bounds": [10000.0, 1000000.0],
+          "bounds": [0.1, 10] ,
           "gamma": 1,
           "is_multiplier": true
         },
         "g_leak": {
-          "bounds": [0.1, 10.0],
+          "bounds": [0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },
         "tau_z": {
-          "bounds": [1e-05, 0.001],
+          "bounds":[0.1, 10],
           "gamma": 1,
           "is_multiplier": true
         },

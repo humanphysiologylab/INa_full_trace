@@ -123,7 +123,7 @@ model.run.argtypes = [
     np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
     ctypes.c_int,
     np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS'),
-    #np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS')
+    np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS')
 ]
 model.run.restype = ctypes.c_int
 
@@ -162,6 +162,10 @@ for exp_cond_name, exp_cond in config['experimental_conditions'].items():
 filename_kwargs = os.path.normpath(os.path.join(config_path, config['kwargs']['filename_legend_states']))
 config['kwargs']['states'] =  pd.read_csv(filename_kwargs, index_col='name')
 config['kwargs']['filename_legend_states'] = filename_kwargs
+
+filename_kwargs = os.path.normpath(os.path.join(config_path, config['kwargs']['filename_legend_algebraic']))
+config['kwargs']['algebraic'] =  pd.read_csv(filename_kwargs, index_col='name')
+config['kwargs']['filename_legend_algebraic'] = filename_kwargs
 
 
 output_folder_name = os.path.normpath(os.path.join(config_path, config.get("output_folder_name", "./output")))

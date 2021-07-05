@@ -1,9 +1,9 @@
 {
   # "initial_population_filename": "smth",
 
-    "n_organisms": 64,
-    "n_elites": 4,
-    "n_generations": 10,
+    "n_organisms": 16,
+    "n_elites": 2,
+    "n_generations": 100,
     "output_folder_name": "../results/",
 
     "crossover_rate": 1.0,
@@ -31,15 +31,11 @@
 
       "params": {
 
-        "с_p": {
-          "bounds": [1e-14, 5e-12],
-          "gamma": 1,
-          "is_multiplier": false
-        },
+
         "c_m": {
-          "bounds": [1e-11, 9e-11],
+          "bounds": [0.1, 10],
           "gamma": 1,
-          "is_multiplier": false
+          "is_multiplier": true
         }
       }
     },
@@ -47,7 +43,7 @@
     "trace_1": {
       "params": {
         "v_off": {
-                "bounds": [-15.0, 15.0],
+                "bounds": [-3.0, -2.0],
                 "gamma": 1,
                 "is_multiplier": false
               }},

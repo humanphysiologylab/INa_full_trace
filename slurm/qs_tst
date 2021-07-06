@@ -1,0 +1,10 @@
+#!/bin/bash
+#SBATCH --job-name=21-AVO
+#SBATCH --partition mix
+#SBATCH --nodes=1 --ntasks-per-node=1
+#SBATCH --time=10:00
+#SBATCH --chdir=.
+
+cd /data4t/student/21-AVO/INa_full_trace/src/model_ctypes/ina
+
+make clean && make

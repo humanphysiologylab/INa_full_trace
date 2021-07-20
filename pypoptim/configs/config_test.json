@@ -1,0 +1,48 @@
+{
+  "n_organisms": 16,
+  "n_elites": 2,
+  "n_generations": 100,
+
+  "output_folder_name": "../../results/ina/",
+
+
+  "crossover_rate": 1.0,
+  "mutation_rate": 1.0,
+  "gamma": 1.0,
+  "loss": "RMSE",
+  "columns_control": ["I"],
+  "columns_model": ["I_out"],
+
+
+  "filename_so": "../../src/model_ctypes/ina/ina.so",
+  "filename_legend_states": "../../src/model_ctypes/ina/legend_states.csv",
+  "filename_legend_constants": "../../src/model_ctypes/ina/legend_constants.csv",
+  "filename_legend_algebraic": "../../src/model_ctypes/ina/legend_algebraic.csv",
+  "filename_protocol": "../../data/protocols/protocol_trace.csv",
+  "filename_initial_state_protocol": "../../data/protocols/protocol_initial_state.csv",
+
+
+
+  "experimental_conditions": {
+    "common": {
+      "params": {
+        "c_m": {
+          "bounds": [0.1, 10],
+          "gamma": 1,
+          "is_multiplier": true
+        }
+      }
+    },
+
+    "trace": {
+      "params": {
+        "v_off": {
+          "bounds": [-3.0, -2.0],
+          "gamma": 1,
+          "is_multiplier": false
+        }
+      },
+      "filename_phenotype": "../../data/ina/phenotypes/artificial_data.csv"
+    }
+  }
+}

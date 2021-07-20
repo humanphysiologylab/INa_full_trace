@@ -3,8 +3,7 @@ import pandas as pd
 
 from pypoptim.algorythm import Solution
 
-from gene_utils import update_S_C_from_genes, \
-                       update_genes_from_state
+from gene_utils import update_S_C_from_genes
 
 from loss_utils import calculate_loss
 
@@ -15,7 +14,7 @@ class SolModel(Solution):
         super().__init__(x, **kwargs_data)
         for attr in 'model', 'config':
             if not hasattr(self, attr):
-                raise AttributeError(attr)
+                raise AttributeError(attr, "make this guy static")
 
         self._status = None
         self.__status_valid = 2
@@ -38,27 +37,28 @@ class SolModel(Solution):
                 continue
 
             C = legend['constants'].copy()
-            # S = self['state'][exp_cond_name].copy()
-            S = legend['states'].copy()
+            # S = self.config['state']  # ??? TODO, do you need S to be put in self.model.run()?
+            S = legend['states'].copy() # DONE
+            A = legend['algebraic'].copy()
 
             update_S_C_from_genes(S, C, genes, exp_cond_name, self.config)
 
-            # stim_protocol = self.config['experimental_conditions'][exp_cond_name]['stim_protocol']
-            # pred = self.model.run(S, C, stim_protocol=stim_protocol,
-            #                      **self.config)
-            pred = self.model.run(S, C, **self.config)
+            df_protocol = self.config['runtime']['protocol']  # DONE
+            df_initial_state_protocol = self.config['runtime']['initial_state_protocol']  # DONE
 
+            pred = self.model.run(A,
+                                  S,  # <- TODO: do you need this?
+                                  C,
+                                  df_protocol,  # DONE
+                                  df_initial_state_protocol,  # DONE
+                                  **self.config)
             self._status = self.model.status
             if self._status != self.__status_valid:
+                print('TAK')
                 self._x = genes.values
                 self._y = np.nan
                 return
-
-            update_genes_from_state(genes=genes, state=self['state'],
-                                    config=self.config, exp_cond_name=exp_cond_name)
-
             self['phenotype'][exp_cond_name] = pred.copy()
-            self['state'][exp_cond_name] = self['phenotype'][exp_cond_name].iloc[-1]
 
         self._x = genes.values
         self._y = calculate_loss(self, self.config)
@@ -68,7 +68,7 @@ class SolModel(Solution):
             return False
         else:
             flag_valid = self._status == self.__status_valid and np.isfinite(self._y)
-            # if 'phenotype' not in self:  # solution was gathered via MPI
-            return flag_valid
-            # else:
-            #    return flag_valid and all(not np.any(np.isnan(p)) for p in self['phenotype'].values())
+            if 'phenotype' not in self:  # solution was gathered via MPI
+                return flag_valid
+            else:
+               return flag_valid and all(not np.any(np.isnan(p)) for p in self['phenotype'].values())

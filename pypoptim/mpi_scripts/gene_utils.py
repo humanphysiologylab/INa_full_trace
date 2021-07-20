@@ -4,7 +4,7 @@ import numpy as np
 def create_genes_dict_from_config(config):
     genes_dict = {ec_name:
                       {p_name: dict(bounds=p['bounds'],
-                                    gamma=p['gamma'],
+                                    gamma=p.get('gamma', 1),
                                     is_multiplier=p.get("is_multiplier", False))
                        for p_name, p in ec['params'].items() if isinstance(p, dict)}
                   for ec_name, ec in config['experimental_conditions'].items()}
@@ -58,6 +58,7 @@ def update_S_C_from_genes(S, C, genes, exp_cond_name, config):
             C[c_name] = c
         if c_name in legend['states'].index:
             S[c_name] = c
+    
 
 
 def update_genes_from_state(genes, state, config, exp_cond_name):

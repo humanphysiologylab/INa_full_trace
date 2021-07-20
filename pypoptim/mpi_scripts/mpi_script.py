@@ -58,7 +58,6 @@ def mpi_script(config_filename):
                   config['runtime']['gammas'],
                   config['runtime']['mask_multipliers'],
                   )
-                  #keys_data_transmit=['state'])
 
     initial_population_filename = config.get('initial_population_filename', None)
     if initial_population_filename is not None:
@@ -68,8 +67,6 @@ def mpi_script(config_filename):
         backup_config(config)
 
     batch = ga_optim.generate_population(config['runtime']['n_orgsnisms_per_process'])
-    #for sol in batch:
-        #sol['state'] = config['runtime']['states_initial']
 
     timer = Timer()
 
@@ -83,7 +80,7 @@ def mpi_script(config_filename):
             pbar.set_postfix_str("CALC")
         for i, sol in enumerate(batch):
             sol.update()
-            if not sol.is_valid():
+            if not (sol.is_valid() and ga_optim._is_solution_inside_bounds(sol)):
                 sol._y = np.inf
         timer.end('calc')
 
@@ -102,6 +99,7 @@ def mpi_script(config_filename):
         index_best_batch = index_best % config['runtime']['n_orgsnisms_per_process']
 
         if comm_rank == comm_rank_best:
+            #print(batch)
             sol_best = batch[index_best_batch]
             save_sol_best(sol_best, config)
 
@@ -124,6 +122,7 @@ def mpi_script(config_filename):
                 raise RuntimeError(msg)
 
         elites_all = population[:config['n_elites']]  # len may be less than config['n_elites'] due to invalids
+
         elites_batch = elites_all[comm_rank::comm_size]  # elites_batch may be empty
         n_elites = len(elites_batch)
         n_mutants = config['runtime']['n_orgsnisms_per_process'] - n_elites

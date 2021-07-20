@@ -63,6 +63,7 @@ def calculate_full_trace(y, *args):
     status = model.run(S.values.copy(), x, t0, v0, initial_len, S_initial, A_initial)
 
     S_output = np.zeros((output_len, len(S)))
+    A_output = np.zeros((output_len, len(A)))
     n_sections = 20
     split_indices = np.linspace(0, len(v_all), n_sections + 1).astype(int)
 
@@ -73,7 +74,7 @@ def calculate_full_trace(y, *args):
         len_one_step = split_indices[k + 1] - split_indices[k]
         status = model.run(S_initial[-1].copy(), x.copy(),
                            t1, v, len_one_step,
-                           S_output[start:end])
+                           S_output[start:end], A_output[start:end])
 
     I_out = S_output.T[-1]
     # I_out = output_S.I_out.copy()
@@ -180,7 +181,7 @@ def give_me_ina(filename):
         np.ctypeslib.ndpointer(dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
         ctypes.c_int,
         np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS'),
-        # np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS')
+        np.ctypeslib.ndpointer(dtype=np.float64, ndim=2, flags='C_CONTIGUOUS')
     ]
     ina.run.restype = ctypes.c_int
     return ina

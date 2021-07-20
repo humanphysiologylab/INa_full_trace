@@ -133,7 +133,7 @@ def save_sol_best(sol_best, config):
         folder_phenotype = config['runtime']['output']['folder_phenotype']
         if not os.path.isdir(folder_phenotype):
             os.mkdir(folder_phenotype)
-        #print(sol_best)
+        
         df = sol_best['phenotype'][exp_cond_name]
 
         # Rewrite last epoch

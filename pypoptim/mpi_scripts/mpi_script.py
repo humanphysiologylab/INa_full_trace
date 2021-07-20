@@ -9,7 +9,7 @@ from tqdm.auto import tqdm
 
 import numpy as np
 
-from pypoptim.model import CardiacModel
+from ina_model import InaModel
 from solmodel import SolModel
 from pypoptim.algorythm.ga import GA
 
@@ -49,7 +49,7 @@ def mpi_script(config_filename):
 
     recvbuf_dict = allocate_recvbuf(config, comm)
 
-    model = CardiacModel(config['runtime']['filename_so_abs'])
+    model = InaModel(config['runtime']['filename_so_abs'])
     SolModel.model = model
     SolModel.config = config
 
@@ -68,8 +68,8 @@ def mpi_script(config_filename):
         backup_config(config)
 
     batch = ga_optim.generate_population(config['runtime']['n_orgsnisms_per_process'])
-    for sol in batch:
-        sol['state'] = config['runtime']['states_initial']
+    #for sol in batch:
+        #sol['state'] = config['runtime']['states_initial']
 
     timer = Timer()
 

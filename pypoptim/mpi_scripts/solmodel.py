@@ -38,13 +38,15 @@ class SolModel(Solution):
                 continue
 
             C = legend['constants'].copy()
-            S = self['state'][exp_cond_name].copy()
+            # S = self['state'][exp_cond_name].copy()
+            S = legend['states'].copy()
 
             update_S_C_from_genes(S, C, genes, exp_cond_name, self.config)
 
-            stim_protocol = self.config['experimental_conditions'][exp_cond_name]['stim_protocol']
-            pred = self.model.run(S, C, stim_protocol=stim_protocol,
-                                  **self.config)
+            # stim_protocol = self.config['experimental_conditions'][exp_cond_name]['stim_protocol']
+            # pred = self.model.run(S, C, stim_protocol=stim_protocol,
+            #                      **self.config)
+            pred = self.model.run(S, C, **self.config)
 
             self._status = self.model.status
             if self._status != self.__status_valid:

@@ -66,10 +66,10 @@ def prepare_config(config_filename):
 
     #config['runtime']['states_initial'] = states_initial
     protocol = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_protocol"])),
-                                   usecols=['t', 'v'])['v']
+                                   usecols=['t', 'v'])
     config['runtime']['protocol'] = protocol
     initial_protocol = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_initial_state_protocol"])),
-                                   usecols=['t', 'v'])['v']
+                                   usecols=['t', 'v'])
     config['runtime']['initial_protocol'] = initial_protocol
 
     A = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_legend_algebraic"])),

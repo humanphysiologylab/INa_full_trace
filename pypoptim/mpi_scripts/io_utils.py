@@ -16,7 +16,6 @@ def prepare_config(config_filename):
 
     config_path = os.path.dirname(os.path.realpath(config_filename))
 
-
     with open(config_filename) as f:
         text = f.read()
         text = strip_comments(text)
@@ -44,38 +43,25 @@ def prepare_config(config_filename):
                                    usecols=['name', 'value'], index_col='name')['value']  # Series
     legend['constants'] = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_legend_constants"])),
                                       usecols=['name', 'value'], index_col='name')['value']  # Series
+    legend['algebraic'] = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_legend_algebraic"])),
+                                      usecols=['name', 'value'], index_col='name')['value']  # Series
     config['runtime']['legend'] = legend
 
-    #for exp_cond_name, exp_cond in config['experimental_conditions'].items():
+    for exp_cond_name, exp_cond in config['experimental_conditions'].items():
 
-    #    filename_state = os.path.normpath(os.path.join(config_path, exp_cond['filename_state']))
-    #    exp_cond['initial_state'] = pd.read_csv(filename_state, index_col=0).iloc[:, -1]
-    #    exp_cond['filename_state'] = filename_state
+        if exp_cond_name == 'common':
+            continue
 
-    #    column_stim_protocol = config.get('column_stim_protocol', None)
-    #    if column_stim_protocol is not None:
-    #        filename_stim_protocol = os.path.normpath(os.path.join(config_path, exp_cond['filename_stim_protocol']))
-    #        exp_cond['stim_protocol'] = pd.read_csv(filename_stim_protocol)  # [column_stim_protocol]  # pd.Series is returned
-    #        exp_cond['filename_stim_protocol'] = filename_stim_protocol
-    #    else:
-    #        exp_cond['stim_protocol'] = None
-#
-    #states_initial = pd.DataFrame(data={exp_cond_name: exp_cond['initial_state'].copy()
-    #                                    for exp_cond_name, exp_cond in config['experimental_conditions'].items()
-    #                                    if exp_cond_name != 'common'})
+        filename_phenotype = os.path.normpath(os.path.join(config_path, exp_cond['filename_phenotype']))
+        exp_cond['phenotype'] = pd.read_csv(filename_phenotype)
+        exp_cond['filename_phenotype'] = filename_phenotype
 
-    #config['runtime']['states_initial'] = states_initial
     protocol = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_protocol"])),
-                                   usecols=['t', 'v'])['v']
+                                   usecols=['v'])
     config['runtime']['protocol'] = protocol
     initial_protocol = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_initial_state_protocol"])),
-                                   usecols=['t', 'v'])['v']
+                                   usecols=['v'])
     config['runtime']['initial_protocol'] = initial_protocol
-
-    A = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_legend_algebraic"])),
-                                   usecols=['name', 'value'], index_col='name')['value']
-    config['runtime']['algebraic'] = A
-
 
     bounds, gammas, mask_multipliers = generate_bounds_gammas_mask_multipliers(config['runtime']['genes_dict'])
     config['runtime']['bounds'] = bounds
@@ -101,7 +87,6 @@ def update_output_dict(config):
                                        folder_dump=os.path.join(folder, "dump"),
                                        folder_best=os.path.join(folder, "best"),
                                        folder_phenotype = os.path.join(folder, "phenotype"),
-                                       folder_state=os.path.join(folder, "state")
                                        )
 
 
@@ -163,11 +148,7 @@ def save_sol_best(sol_best, config):
         with open(filename, 'ba+') as f:
             df.values.astype(np.float32).tofile(f)
 
-    filename = os.path.join(output_dict['folder'], 'state_best.csv')
-    sol_best['state'].to_csv(filename)
-
     d = dict(genes=sol_best.x,
-             state=sol_best['state'].values,
              loss=sol_best.y,
              status=sol_best.status)
 
@@ -187,7 +168,7 @@ def collect_results(case, dirname_results, dump_keys=None):
     dump = {}
     for folder in dump_keys:
         dump[folder] = {}
-        for key in 'genes', 'state', 'status', 'loss':
+        for key in 'genes', 'status', 'loss':
             filename = os.path.join(config_path, folder, key)
             if os.path.isfile(filename):
                 dump[folder][key] = np.fromfile(filename)
@@ -213,13 +194,9 @@ def collect_results(case, dirname_results, dump_keys=None):
                 print(f'{filename} is empty')
                 continue
 
-    filename = os.path.join(config_path, 'state_best.csv')
-    state_best = pd.read_csv(filename, index_col=0)
-
     results = dict(config=config,
                    dump=dump,
                    sol_best=sol_best,
-                   phenotype_best=phenotype_best,
-                   state_best=state_best)
+                   phenotype_best=phenotype_best)
 
     return results

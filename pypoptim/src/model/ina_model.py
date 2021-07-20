@@ -1,7 +1,7 @@
 import os
 import ctypes
-import pandas as pd
 import numpy as np
+
 
 class InaModel:
 
@@ -47,21 +47,13 @@ class InaModel:
     def status(self):
         return self._status
 
-    def run(self, S, C, **kwargs):
-        # def run_model_ctypes(C, config):
+    def run(self, S, C, df_protocol, df_initial_state_protocol, **kwargs):
 
-        #kwargs = kwargs['kwargs']
+        A = kwargs['runtime']['legend']['algebraic'].copy()
 
-        # S = kwargs['states']['value']
-        A = kwargs['runtime']['algebraic']['value']
-        # print(A)
-
-
-        df_protocol = kwargs['runtime']['experimental_conditions']['trace']['protocol']
         t = df_protocol.t.values
         v_all = df_protocol.v.values
 
-        df_initial_state_protocol = kwargs['runtime']['experimental_conditions']['trace']['initial_state_protocol']
         t0 = df_initial_state_protocol.t.values
         v0 = df_initial_state_protocol.v.values
 
@@ -71,15 +63,13 @@ class InaModel:
         initial_state_S = np.zeros((initial_state_len, len(S)))
         initial_state_A = np.zeros((initial_state_len, len(A)))
 
-        # x = C.value.copy()
-        # np.concatenate((C.copy(), [18.,-80.]))
         self._run(S.values.copy(), C.values.copy(),
                 t0, v0, initial_state_len,
                 initial_state_S, initial_state_A)
 
         S_output = np.zeros((output_len, len(S)))
         A_output = np.zeros((output_len, len(A)))
-        n_sections = 20
+        n_sections = 20  # TODO: move to config
         split_indices = np.linspace(0, len(v_all), n_sections + 1).astype(int)
 
         for k in range(n_sections):
@@ -90,8 +80,7 @@ class InaModel:
             status = self._run(initial_state_S[-1].copy(), C.values.copy(),
                            t1, v, len_one_step,
                            S_output[start:end], A_output[start:end])
-        #output = pd.DataFrame(np.empty((n_samples_per_stim * n_beats + 1, len(S))),
-        #                      columns=S.index)
+            self._status = status
 
         output = S_output.T[-1]
         return output

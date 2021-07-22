@@ -1,7 +1,7 @@
 {
   "n_organisms": 256,
   "n_elites": 16,
-  "n_generations": 5000,
+  "n_generations": 500,
 
   "output_folder_name": "../../results/ina/",
 
@@ -28,137 +28,137 @@
 
         "c_p": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "c_m": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "a0_m": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "b0_m": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "delta_m": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "s_m": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "a0_h": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "b0_h": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "delta_h": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "s_h": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "a0_j": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "b0_j": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "delta_j": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "s_j": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "tau_j_const": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "R": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "R_f": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "g_max": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "g_leak": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "tau_z": {
           "bounds": [0.1, 10],
-          "gamma": 0.15,
+          "gamma": 0.012,
           "is_multiplier": true
         },
         "v_half_m": {
           "bounds": [10.0, 60.0],
-          "gamma": 1.5,
+          "gamma": 0.06,
           "is_multiplier": false
         },
         "v_half_h": {
           "bounds": [50.0, 100.0],
-          "gamma": 1.5,
+          "gamma": 0.06,
           "is_multiplier": false
         },
         "k_m": {
           "bounds": [1.0, 10.0],
-          "gamma": 0.3,
+          "gamma": 0.02,
           "is_multiplier": false
         },
         "k_h": {
           "bounds": [1.0, 10.0],
-          "gamma": 0.3,
+          "gamma": 0.02,
           "is_multiplier": false
         },
         "x_c_comp": {
           "bounds": [0.01, 1.1],
-          "gamma": 0.03,
+          "gamma": 0.006,
           "is_multiplier": false
         },
         "x_r_comp": {
           "bounds": [0.01, 1.1],
-          "gamma": 0.03,
+          "gamma": 0.006,
           "is_multiplier": false
         },
         "alpha": {
           "bounds": [0.7, 0.8],
-          "gamma": 0.003,
+          "gamma": 0.002,
           "is_multiplier": false
         }
       }
@@ -168,7 +168,7 @@
       "params": {
         "v_off": {
           "bounds": [-5.0, 5.0],
-          "gamma": 0.3,
+          "gamma": 0.02,
           "is_multiplier": false
         }
       },

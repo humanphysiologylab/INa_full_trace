@@ -56,6 +56,10 @@ def prepare_config(config_filename):
         exp_cond['phenotype'] = pd.read_csv(filename_phenotype)
         exp_cond['filename_phenotype'] = filename_phenotype
 
+        if 'filename_sample_weight' in exp_cond:
+            filename_sample_weight = os.path.normpath(os.path.join(config_path, exp_cond['filename_sample_weight']))
+            exp_cond['sample_weight'] = pd.read_csv(filename_sample_weight)
+            exp_cond['filename_sample_weight'] = filename_sample_weight
 
     protocol = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_protocol"])),
                                    usecols=['t','v'])

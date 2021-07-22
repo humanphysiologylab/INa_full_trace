@@ -13,12 +13,11 @@ def calculate_loss(sol, config):
         if exp_cond_name == 'common':
             continue
 
-
         if config['loss'] == 'RMSE':
-            x = sol['phenotype'][exp_cond_name]['I_out']  # TODO
-            y = exp_cond['phenotype']['I_out']  # TODO
-
-            loss += RMSE(x, y)
+            x = sol['phenotype'][exp_cond_name]['I_out']
+            y = exp_cond['phenotype']['I_out']
+            sample_weight = exp_cond.get('sample_weight', None)
+            loss += RMSE(x, y, sample_weight=sample_weight)
 
         else:
             raise NotImplementedError('I don\'t know your type of loss')

@@ -1,6 +1,6 @@
 {
-  "n_organisms": 2560,
-  "n_elites": 160,
+  "n_organisms": 256,
+  "n_elites": 16,
   "n_generations": 1000,
 
   "output_folder_name": "../../results/ina/",

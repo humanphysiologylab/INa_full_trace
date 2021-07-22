@@ -173,10 +173,8 @@
         }
       },
       "filename_phenotype": "../../data/training/artificial_data.csv",
-      "weight":{
-        "filename_sample_weight":"../../data/sample_weights/weight_10_for_35_mV.csv",
-        "column_sample_weight": ["w"]
-      }
+      "filename_sample_weight":"../../data/sample_weights/weight_10_for_35_mV.csv"
+
     }
   }
 }

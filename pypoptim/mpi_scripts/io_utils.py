@@ -57,6 +57,7 @@ def prepare_config(config_filename):
         exp_cond['filename_phenotype'] = filename_phenotype
 
         if 'filename_sample_weight' in exp_cond:
+            #print('ok')
             filename_sample_weight = os.path.normpath(os.path.join(config_path, exp_cond['filename_sample_weight']))
             exp_cond['sample_weight'] = pd.read_csv(filename_sample_weight).w
             exp_cond['filename_sample_weight'] = filename_sample_weight

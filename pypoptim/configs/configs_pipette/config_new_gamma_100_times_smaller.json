@@ -3,7 +3,7 @@
   "n_elites": 16,
   "n_generations": 500,
 
-  "output_folder_name": "../../results/ina_pipette/",
+  "output_folder_name": "../../../results/ina_pipette/",
 
   "loss": "RMSE",
   "columns_control": ["I_out"],
@@ -11,12 +11,12 @@
   "column_stim_protocol": ["v"],
   # TODO
 
-  "filename_so": "../../src/model_ctypes/ina_pipette/ina.so",
-  "filename_legend_states": "../../src/model_ctypes/ina_pipette/legend_states.csv",
-  "filename_legend_constants": "../../src/model_ctypes/ina_pipette/legend_constants.csv",
-  "filename_legend_algebraic": "../../src/model_ctypes/ina_pipette/legend_algebraic.csv",
-  "filename_protocol": "../../data/protocols/protocol_trace.csv",
-  "filename_initial_state_protocol": "../../data/protocols/protocol_initial_state_x3.csv",
+  "filename_so": "../../../src/model_ctypes/ina_pipette/ina.so",
+  "filename_legend_states": "../../../src/model_ctypes/ina_pipette/legend_states.csv",
+  "filename_legend_constants": "../../../src/model_ctypes/ina_pipette/legend_constants.csv",
+  "filename_legend_algebraic": "../../../src/model_ctypes/ina_pipette/legend_algebraic.csv",
+  "filename_protocol": "../../../data/protocols/protocol_trace.csv",
+  "filename_initial_state_protocol": "../../../data/protocols/protocol_initial_state_x3.csv",
 
 
 
@@ -172,10 +172,10 @@
           "is_multiplier": false
         }
       },
-      "filename_phenotype": "../../data/training/art_data_right_j_pipette.csv"
+      "filename_phenotype": "../../../data/training/art_data_right_j_pipette.csv"
       #,
-      # "filename_sample_weight": "../../data/sample_weights/weight_10_for_30_and_35_mV.csv"
-      # "filename_sample_weight": "../../data/sample_weights/weight_10_for_35_mV.csv"
+      # "filename_sample_weight": "../../../data/sample_weights/weight_10_for_30_and_35_mV.csv"
+      # "filename_sample_weight": "../../../data/sample_weights/weight_10_for_35_mV.csv"
 
     }
   }

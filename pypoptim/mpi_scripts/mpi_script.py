@@ -13,7 +13,7 @@ from ina_model import InaModel
 from solmodel import SolModel
 from pypoptim.algorythm.ga import GA
 
-from pypoptim.helpers import argmin
+from pypoptim.helpers import argmin, is_values_inside_bounds
 from pypoptim import Timer
 
 from io_utils import prepare_config, update_output_dict, backup_config, dump_epoch, save_sol_best
@@ -80,7 +80,7 @@ def mpi_script(config_filename):
             pbar.set_postfix_str("CALC")
         for i, sol in enumerate(batch):
             sol.update()
-            if not (sol.is_valid() and ga_optim._is_solution_inside_bounds(sol)):
+            if not (sol.is_valid() and ga_optim.is_solution_inside_bounds(sol)):
                 sol._y = np.inf
         timer.end('calc')
 
@@ -89,19 +89,36 @@ def mpi_script(config_filename):
             pbar.set_postfix_str("GATHER")
         allgather(batch, recvbuf_dict, comm)
         population = population_from_recvbuf(recvbuf_dict, SolModel, config)
+
+        n_orgsnisms_per_process = config['runtime']['n_orgsnisms_per_process']
+        shift = comm_rank * n_orgsnisms_per_process
+        assert all(sol_b.is_all_equal(sol_p) for sol_b, sol_p in zip(batch, population[shift:]))
+
+
         timer.end('gather')
 
         timer.start('save')
         if comm_rank == 0:
             pbar.set_postfix_str("SAVE")
+
         index_best = argmin(population)
+        assert population[index_best] is min(population)
         comm_rank_best = index_best // config['runtime']['n_orgsnisms_per_process']
         index_best_batch = index_best % config['runtime']['n_orgsnisms_per_process']
 
         if comm_rank == comm_rank_best:
-            #print(batch)
+            # print(batch)
             sol_best = batch[index_best_batch]
+
+            assert sol_best is min(batch)
+            assert sol_best.is_all_equal(min(population))
+
             save_sol_best(sol_best, config)
+
+            assert sol_best.is_updated()
+            assert sol_best.is_valid()
+            assert is_values_inside_bounds(sol_best.x, config['runtime']['bounds'])
+            assert ga_optim.is_solution_inside_bounds(sol_best)
 
         if comm_rank == (comm_rank_best + 1) % comm_size:
             dump_epoch(recvbuf_dict, config)

@@ -85,7 +85,7 @@ def mpi_script(config_filename):
         if comm_rank == 0:
             pbar.set_postfix_str("CALC")
         for i, sol in enumerate(batch):
-            y_previous = None if sol.is_updated() else sol.y.copy()
+            y_previous = None if not sol.is_updated() else sol.y.copy()
             sol.update()
             if y_previous is not None:
                 assert y_previous == sol.y
@@ -153,8 +153,15 @@ def mpi_script(config_filename):
 
         elites_all = population[:config['n_elites']]  # len may be less than config['n_elites'] due to invalids
 
-        elites_batch = elites_all[comm_rank::comm_size]  # elites_batch may be empty
+        elites_batch = []
+        for sol_elite in elites_all:
+            for sol in batch:
+                if sol.is_all_equal(sol_elite):
+                    elites_batch.append(sol)
+
+        # elites_batch = elites_all[comm_rank::comm_size]  # elites_batch may be empty
         n_elites = len(elites_batch)
+        assert n_elites == len(batch)
         n_mutants = config['runtime']['n_orgsnisms_per_process'] - n_elites
 
         mutants_batch = ga_optim.get_mutants(population, n_mutants)

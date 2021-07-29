@@ -12,7 +12,6 @@ def calculate_loss(sol, config):
 
         if exp_cond_name == 'common':
             continue
-
         if config['loss'] == 'RMSE':
             x = sol['phenotype'][exp_cond_name]['I_out']
             y = exp_cond['phenotype']['I_out']

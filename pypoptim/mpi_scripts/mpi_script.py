@@ -3,6 +3,7 @@
 import os
 import logging
 import argparse
+import warnings
 
 from mpi4py import MPI
 from tqdm.auto import tqdm
@@ -53,11 +54,14 @@ def mpi_script(config_filename):
     SolModel.model = model
     SolModel.config = config
 
+    rng = np.random.Generator(np.random.PCG64(42))
+    warnings.warn("УБЕРИ СИД!!!!")
+
     ga_optim = GA(SolModel,
-                  config['runtime']['bounds'],
-                  config['runtime']['gammas'],
-                  config['runtime']['mask_multipliers'],
-                  )
+                  bounds=config['runtime']['bounds'],
+                  gammas=config['runtime']['gammas'],
+                  mask_log10_scale=config['runtime']['mask_multipliers'],
+                  rng=rng)
 
     initial_population_filename = config.get('initial_population_filename', None)
     if initial_population_filename is not None:
@@ -72,6 +76,8 @@ def mpi_script(config_filename):
 
     if comm_rank == 0:
         pbar = tqdm(total=config['n_generations'], ascii=True)
+
+    loss_last = np.inf
 
     for epoch in range(config['n_generations']):
 
@@ -105,6 +111,10 @@ def mpi_script(config_filename):
         assert population[index_best] is min(population)
         comm_rank_best = index_best // config['runtime']['n_orgsnisms_per_process']
         index_best_batch = index_best % config['runtime']['n_orgsnisms_per_process']
+
+        loss_current = min(population).y
+        assert loss_current <= loss_last
+        loss_current = loss_last
 
         if comm_rank == comm_rank_best:
             # print(batch)

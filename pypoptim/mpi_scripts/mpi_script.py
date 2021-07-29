@@ -85,7 +85,10 @@ def mpi_script(config_filename):
         if comm_rank == 0:
             pbar.set_postfix_str("CALC")
         for i, sol in enumerate(batch):
+            y_previous = None if sol.is_updated() else sol.y.copy()
             sol.update()
+            if y_previous is not None:
+                assert y_previous == sol.y
             if not (sol.is_valid() and ga_optim.is_solution_inside_bounds(sol)):
                 sol._y = np.inf
         timer.end('calc')

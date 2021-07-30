@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+import copy
 import os
 import logging
 import argparse
@@ -19,7 +19,7 @@ from pypoptim import Timer
 
 from io_utils import prepare_config, update_output_dict, backup_config, dump_epoch, save_sol_best
 from mpi_utils import allocate_recvbuf, allgather, population_from_recvbuf
-
+from  pypoptim.losses import RMSE
 
 def mpi_script(config_filename):
 
@@ -54,7 +54,7 @@ def mpi_script(config_filename):
     SolModel.model = model
     SolModel.config = config
 
-    rng = np.random.Generator(np.random.PCG64(42))
+    rng = np.random.Generator(np.random.PCG64(42 + comm_rank))
     warnings.warn("УБЕРИ СИД!!!!")
 
     ga_optim = GA(SolModel,
@@ -87,6 +87,16 @@ def mpi_script(config_filename):
         for i, sol in enumerate(batch):
             y_previous = None if not sol.is_updated() else sol.y.copy()
             sol.update()
+
+            y = []
+            x = []
+            for _ in range(4):
+                sol.update()
+                y.append(sol.y)
+                x.append(sol.x)
+            assert np.all(y[0] == y_i for y_i in y), str(y)
+            assert np.all(x[0] == x_i for x_i in x), str(x)
+
             if y_previous is not None:
                 assert y_previous == sol.y
             if not (sol.is_valid() and ga_optim.is_solution_inside_bounds(sol)):
@@ -159,9 +169,24 @@ def mpi_script(config_filename):
                 if sol.is_all_equal(sol_elite):
                     elites_batch.append(sol)
 
+        for sol in batch:
+            sol_copy = SolModel(sol.x.copy())
+            sol_copy._y = sol.y
+            sol.update()
+            assert SolModel.config == sol.config
+            if sol.y != sol_copy.y:
+                print(len(sol.data['phenotype']['trace']['I_out']), len(sol_copy.data['phenotype']['trace']['I_out']))
+                print(RMSE(sol.data['phenotype']['trace']['I_out'], sol_copy.data['phenotype']['trace']['I_out']))
+                print("Y \n", sol.y,"sol_y\n", sol_copy.y,"sol_y_copy\n",sol.x,"sol_x\n", sol_copy.x,"sol_x_copy\n END")
+                assert 0
+            if  np.all(sol.x != sol_copy.x):
+                print("X \n", sol.y,"\n", sol_copy.y,"\n",sol.x,"\n", sol_copy.x)
+                assert 0
+
+
         # elites_batch = elites_all[comm_rank::comm_size]  # elites_batch may be empty
         n_elites = len(elites_batch)
-        assert n_elites == len(batch)
+        assert n_elites <= len(batch)
         n_mutants = config['runtime']['n_orgsnisms_per_process'] - n_elites
 
         mutants_batch = ga_optim.get_mutants(population, n_mutants)
@@ -185,6 +210,8 @@ def mpi_script(config_filename):
         pbar.refresh()
 
 
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
@@ -203,5 +230,6 @@ if __name__ == '__main__':
                  DEBUG=logging.DEBUG).get(logging_level, logging.WARNING)
     logging.basicConfig(level=level)
     logger = logging.getLogger(__name__)
+    logging.getLogger('numba').setLevel(logging.CRITICAL)  # https://stackoverflow.com/a/63471108/13213091
 
     mpi_script(config_filename)

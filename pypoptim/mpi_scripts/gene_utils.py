@@ -50,8 +50,10 @@ def update_S_C_from_genes(S, C, genes, exp_cond_name, config):
                 if g_name in genes_dict[ecn]:
                     if genes_dict[ecn][g_name]['is_multiplier']:
                         S[g_name] *= genes[ecn, g_name]
+                        print('IF WHAT THE HELL')
                     else:
                         S[g_name] = genes[ecn, g_name]
+                        print('ELSE WHAT THE HELL')
 
     for c_name, c in constants_dict_current.items():
         if c_name in legend['constants'].index:

@@ -81,6 +81,6 @@ class InaModel:
             # self._status = self._run(initial_state_S[-1].copy(), C.copy(),
                            t1, v, len_one_step,
                            S_output[start:end], A_output[start:end])
-        output = pd.DataFrame(S_output, columns=S.index)
+        output = pd.DataFrame(S_output.copy(), columns=S.index)
         # print(output)
         return output

@@ -1,7 +1,7 @@
 {
   "n_organisms": 16,
   "n_elites": 2,
-  "n_generations": 100,
+  "n_generations": 2,
 
   "output_folder_name": "../../../results/ina_pipette/",
 

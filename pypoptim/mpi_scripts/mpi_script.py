@@ -88,7 +88,6 @@ def mpi_script(config_filename):
         if comm_rank == 0:
             pbar.set_postfix_str("CALC")
         for i, sol in enumerate(batch):
-            y_previous = None if not sol.is_updated() else sol.y.copy()
             sol.update()
 
             if not (sol.is_valid() and ga_optim.is_solution_inside_bounds(sol)):
@@ -102,7 +101,8 @@ def mpi_script(config_filename):
                     np.save(filename_save, sol['phenotype'][exp_cond_name].values)
 
 
-        comm.Barrier()
+        # comm.Barrier()
+
         timer.end('calc')
 
         timer.start('gather')
@@ -111,9 +111,11 @@ def mpi_script(config_filename):
         allgather(batch, recvbuf_dict, comm)
         population = population_from_recvbuf(recvbuf_dict, SolModel, config)
 
-        n_orgsnisms_per_process = config['runtime']['n_orgsnisms_per_process']
-        shift = comm_rank * n_orgsnisms_per_process
-       # assert all(sol_b.is_all_equal(sol_p) for sol_b, sol_p in zip(batch, population[shift:]))
+
+        # n_orgsnisms_per_process = config['runtime']['n_orgsnisms_per_process']
+        # shift = comm_rank * n_orgsnisms_per_process
+        # assert all(sol_b.is_all_equal(sol_p) for sol_b, sol_p in zip(batch, population[shift:]))
+
 
         timer.end('gather')
 
@@ -170,20 +172,6 @@ def mpi_script(config_filename):
                 if sol.is_all_equal(sol_elite):
                     elites_batch.append(sol)
 
-        for sol in batch:
-            #sol_copy = SolModel(sol.x.copy())
-            #sol_copy._y = sol.y
-            sol.update()
-           # assert SolModel.config == sol.config
-            #if sol.y != sol_copy.y:
-               # print(len(sol.data['phenotype']['trace']['I_out']), len(sol_copy.data['phenotype']['trace']['I_out']))
-               # print(RMSE(sol.data['phenotype']['trace']['I_out'], sol_copy.data['phenotype']['trace']['I_out']))
-               # print("Y \n", sol.y,"sol_y\n", sol_copy.y,"sol_y_copy\n",sol.x,"sol_x\n", sol_copy.x,"sol_x_copy\n END")
-
-                #assert 0
-           # if np.all(sol.x != sol_copy.x):
-                #print("X \n", sol.y, "\n", sol_copy.y, "\n", sol.x, "\n", sol_copy.x)
-                #assert 0
 
         # elites_batch = elites_all[comm_rank::comm_size]  # elites_batch may be empty
         n_elites = len(elites_batch)

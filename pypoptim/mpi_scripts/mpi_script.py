@@ -186,8 +186,8 @@ def mpi_script(config_filename):
             sol.update()
             assert SolModel.config == sol.config
             if sol.y != sol_copy.y:
-                print(len(sol.data['phenotype']['trace']['I_out']), len(sol_copy.data['phenotype']['trace']['I_out']))
-                print(RMSE(sol.data['phenotype']['trace']['I_out'], sol_copy.data['phenotype']['trace']['I_out']))
+               # print(len(sol.data['phenotype']['trace']['I_out']), len(sol_copy.data['phenotype']['trace']['I_out']))
+               # print(RMSE(sol.data['phenotype']['trace']['I_out'], sol_copy.data['phenotype']['trace']['I_out']))
                 print("Y \n", sol.y,"sol_y\n", sol_copy.y,"sol_y_copy\n",sol.x,"sol_x\n", sol_copy.x,"sol_x_copy\n END")
                 assert 0
             if  np.all(sol.x != sol_copy.x):

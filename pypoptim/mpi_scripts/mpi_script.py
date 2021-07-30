@@ -19,10 +19,10 @@ from pypoptim import Timer
 
 from io_utils import prepare_config, update_output_dict, backup_config, dump_epoch, save_sol_best
 from mpi_utils import allocate_recvbuf, allgather, population_from_recvbuf
-from  pypoptim.losses import RMSE
+from pypoptim.losses import RMSE
+
 
 def mpi_script(config_filename):
-
     comm = MPI.COMM_WORLD
     comm_rank = comm.Get_rank()
     comm_size = comm.Get_size()
@@ -91,6 +91,16 @@ def mpi_script(config_filename):
             y_previous = None if not sol.is_updated() else sol.y.copy()
             sol.update()
 
+            if not (sol.is_valid() and ga_optim.is_solution_inside_bounds(sol)):
+                sol._y = np.inf
+            else:
+                for exp_cond_name in config['experimental_conditions']:
+                    if exp_cond_name == 'common':
+                        continue
+                    filename_save = f"{epoch:03d}_{i:03d}_{exp_cond_name}.npy"
+                    filename_save = os.path.join(dirname_save, filename_save)
+                    np.save(filename_save, sol['phenotype'][exp_cond_name].values)
+
             y = []
             x = []
             for _ in range(4):
@@ -102,16 +112,8 @@ def mpi_script(config_filename):
 
             if y_previous is not None:
                 assert y_previous == sol.y
-            if not (sol.is_valid() and ga_optim.is_solution_inside_bounds(sol)):
-                sol._y = np.inf
-            else:
-                for exp_cond_name in config['experimental_conditions']:
-                    if exp_cond_name == 'common':
-                        continue
-                    filename_save = f"{epoch:03d}_{i:03d}_{exp_cond_name}.npy"
-                    filename_save = os.path.join(dirname_save, filename_save)
-                    np.save(filename_save, sol['phenotype'][exp_cond_name].values)
 
+        comm.Barrier()
         timer.end('calc')
 
         timer.start('gather')
@@ -123,7 +125,6 @@ def mpi_script(config_filename):
         n_orgsnisms_per_process = config['runtime']['n_orgsnisms_per_process']
         shift = comm_rank * n_orgsnisms_per_process
         assert all(sol_b.is_all_equal(sol_p) for sol_b, sol_p in zip(batch, population[shift:]))
-
 
         timer.end('gather')
 
@@ -189,11 +190,11 @@ def mpi_script(config_filename):
                # print(len(sol.data['phenotype']['trace']['I_out']), len(sol_copy.data['phenotype']['trace']['I_out']))
                # print(RMSE(sol.data['phenotype']['trace']['I_out'], sol_copy.data['phenotype']['trace']['I_out']))
                 print("Y \n", sol.y,"sol_y\n", sol_copy.y,"sol_y_copy\n",sol.x,"sol_x\n", sol_copy.x,"sol_x_copy\n END")
+len(sol_copy.data['phenotype']['trace']['I_out']))
                 assert 0
-            if  np.all(sol.x != sol_copy.x):
-                print("X \n", sol.y,"\n", sol_copy.y,"\n",sol.x,"\n", sol_copy.x)
+            if np.all(sol.x != sol_copy.x):
+                print("X \n", sol.y, "\n", sol_copy.y, "\n", sol.x, "\n", sol_copy.x)
                 assert 0
-
 
         # elites_batch = elites_all[comm_rank::comm_size]  # elites_batch may be empty
         n_elites = len(elites_batch)
@@ -221,10 +222,7 @@ def mpi_script(config_filename):
         pbar.refresh()
 
 
-
-
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser()
     parser.add_argument('config',
                         type=str,

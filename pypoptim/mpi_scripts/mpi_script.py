@@ -79,6 +79,9 @@ def mpi_script(config_filename):
 
     loss_last = np.inf
 
+    dirname_save = os.path.join(config['runtime']['output']['folder'], 'phenotypes_all', str(comm_rank))
+    os.makedirs(dirname_save, exist_ok=True)
+
     for epoch in range(config['n_generations']):
 
         timer.start('calc')
@@ -101,6 +104,14 @@ def mpi_script(config_filename):
                 assert y_previous == sol.y
             if not (sol.is_valid() and ga_optim.is_solution_inside_bounds(sol)):
                 sol._y = np.inf
+            else:
+                for exp_cond_name in config['experimental_conditions']:
+                    if exp_cond_name == 'common':
+                        continue
+                    filename_save = f"{epoch:03d}_{i:03d}_{exp_cond_name}.npy"
+                    filename_save = os.path.join(dirname_save, filename_save)
+                    np.save(filename_save, sol['phenotype'][exp_cond_name].values)
+
         timer.end('calc')
 
         timer.start('gather')

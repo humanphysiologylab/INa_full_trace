@@ -171,7 +171,8 @@ def mpi_script(config_filename):
 
         for sol in batch:
             sol_copy = SolModel(sol.x.copy())
-            sol_copy._y = sol.y
+            #sol_copy._y = sol.y
+            sol_copy.update()
             sol.update()
             assert SolModel.config == sol.config
             if sol.y != sol_copy.y:

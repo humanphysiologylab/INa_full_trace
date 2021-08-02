@@ -53,9 +53,9 @@ def mpi_script(config_filename):
     model = InaModel(config['runtime']['filename_so_abs'])
     SolModel.model = model
     SolModel.config = config
-
-    rng = np.random.Generator(np.random.PCG64(42 + comm_rank))
-    warnings.warn("УБЕРИ СИД!!!!")
+    rng = np.random.Generator(np.random.PCG64(config['runtime']['seed'] + comm_rank))
+    # rng = np.random.Generator(np.random.PCG64(42 + comm_rank))
+    # warnings.warn("УБЕРИ СИД!!!!")
 
     ga_optim = GA(SolModel,
                   bounds=config['runtime']['bounds'],

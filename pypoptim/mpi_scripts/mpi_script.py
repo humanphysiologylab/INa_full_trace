@@ -1,9 +1,8 @@
 #!/usr/bin/env python
-import copy
+
 import os
 import logging
 import argparse
-import warnings
 
 from mpi4py import MPI
 from tqdm.auto import tqdm
@@ -19,10 +18,11 @@ from pypoptim import Timer
 
 from io_utils import prepare_config, update_output_dict, backup_config, dump_epoch, save_sol_best
 from mpi_utils import allocate_recvbuf, allgather, population_from_recvbuf
-from pypoptim.losses import RMSE
 
 
 def mpi_script(config_filename):
+    logger = logging.getLogger(__name__)
+
     comm = MPI.COMM_WORLD
     comm_rank = comm.Get_rank()
     comm_size = comm.Get_size()
@@ -34,6 +34,7 @@ def mpi_script(config_filename):
 
         print(f"# commit: {config['runtime']['sha']}")
         print(f'# size: {comm_size}')
+        print(f"# seed: {config['runtime']['seed']}")
 
         if config['n_organisms'] % comm_size != 0:
             config['runtime']['n_organisms'] = int(np.ceil(config['n_organisms'] / comm_size) * comm_size)
@@ -53,10 +54,8 @@ def mpi_script(config_filename):
     model = InaModel(config['runtime']['filename_so_abs'])
     SolModel.model = model
     SolModel.config = config
-    rng = np.random.Generator(np.random.PCG64(config['runtime']['seed'] + comm_rank))
-    # rng = np.random.Generator(np.random.PCG64(42 + comm_rank))
-    # warnings.warn("УБЕРИ СИД!!!!")
 
+    rng = np.random.Generator(np.random.PCG64(config['runtime']['seed'] + comm_rank))
     ga_optim = GA(SolModel,
                   bounds=config['runtime']['bounds'],
                   gammas=config['runtime']['gammas'],
@@ -71,37 +70,30 @@ def mpi_script(config_filename):
         backup_config(config)
 
     batch = ga_optim.generate_population(config['runtime']['n_orgsnisms_per_process'])
-
     timer = Timer()
 
     if comm_rank == 0:
         pbar = tqdm(total=config['n_generations'], ascii=True)
 
-    loss_last = np.inf
 
-    dirname_save = os.path.join(config['runtime']['output']['folder'], 'phenotypes_all', str(comm_rank))
-    os.makedirs(dirname_save, exist_ok=True)
+    # dirname_save = os.path.join(config['runtime']['output']['folder'], 'phenotypes_all', str(comm_rank))
+    # os.makedirs(dirname_save, exist_ok=True)
 
     for epoch in range(config['n_generations']):
-
         timer.start('calc')
         if comm_rank == 0:
             pbar.set_postfix_str("CALC")
         for i, sol in enumerate(batch):
             sol.update()
-
             if not (sol.is_valid() and ga_optim.is_solution_inside_bounds(sol)):
                 sol._y = np.inf
-            else:
-                for exp_cond_name in config['experimental_conditions']:
-                    if exp_cond_name == 'common':
-                        continue
-                    filename_save = f"{epoch:03d}_{i:03d}_{exp_cond_name}.npy"
-                    filename_save = os.path.join(dirname_save, filename_save)
-                    np.save(filename_save, sol['phenotype'][exp_cond_name].values)
-
-
-        # comm.Barrier()
+            # else:
+            #    for exp_cond_name in config['experimental_conditions']:
+            #        if exp_cond_name == 'common':
+            #            continue
+            #        filename_save = f"{epoch:03d}_{i:03d}_{exp_cond_name}.npy"
+            #        filename_save = os.path.join(dirname_save, filename_save)
+            #        np.save(filename_save, sol['phenotype'][exp_cond_name].values)
 
         timer.end('calc')
 
@@ -111,11 +103,9 @@ def mpi_script(config_filename):
         allgather(batch, recvbuf_dict, comm)
         population = population_from_recvbuf(recvbuf_dict, SolModel, config)
 
-
-        # n_orgsnisms_per_process = config['runtime']['n_orgsnisms_per_process']
-        # shift = comm_rank * n_orgsnisms_per_process
-        # assert all(sol_b.is_all_equal(sol_p) for sol_b, sol_p in zip(batch, population[shift:]))
-
+        n_orgsnisms_per_process = config['runtime']['n_orgsnisms_per_process']
+        shift = comm_rank * n_orgsnisms_per_process
+        assert all(sol_b.is_all_equal(sol_p) for sol_b, sol_p in zip(batch, population[shift:]))
 
         timer.end('gather')
 
@@ -128,17 +118,14 @@ def mpi_script(config_filename):
         comm_rank_best = index_best // config['runtime']['n_orgsnisms_per_process']
         index_best_batch = index_best % config['runtime']['n_orgsnisms_per_process']
 
-        loss_current = min(population).y
-        #assert loss_current <= loss_last
-        loss_current = loss_last
-
         if comm_rank == comm_rank_best:
-            # print(batch)
             sol_best = batch[index_best_batch]
 
             assert sol_best is min(batch)
             assert sol_best.is_all_equal(min(population))
 
+            msg = f"{comm_rank} has best solution:\n{sol_best}"
+            logger.debug(msg)
             save_sol_best(sol_best, config)
 
             assert sol_best.is_updated()
@@ -165,23 +152,19 @@ def mpi_script(config_filename):
                 raise RuntimeError(msg)
 
         elites_all = population[:config['n_elites']]  # len may be less than config['n_elites'] due to invalids
-
-        elites_batch = []
-        for sol_elite in elites_all:
-            for sol in batch:
-                if sol.is_all_equal(sol_elite):
-                    elites_batch.append(sol)
-
-
-        # elites_batch = elites_all[comm_rank::comm_size]  # elites_batch may be empty
+        elites_batch = elites_all[comm_rank::comm_size]  # elites_batch may be empty
         n_elites = len(elites_batch)
-        assert n_elites <= len(batch)
         n_mutants = config['runtime']['n_orgsnisms_per_process'] - n_elites
 
         mutants_batch = ga_optim.get_mutants(population, n_mutants)
         batch = elites_batch + mutants_batch
 
         assert (len(batch) == config['runtime']['n_orgsnisms_per_process'])
+        # for sol_elite in elites_all:
+        #    for sol in batch:
+        #        if sol.is_all_equal(sol_elite):
+        #            elites_batch.append(sol)
+
 
         timer.end('gene')
 

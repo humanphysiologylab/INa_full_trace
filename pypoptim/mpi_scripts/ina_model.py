@@ -82,5 +82,7 @@ class InaModel:
                            t1, v, len_one_step,
                            S_output[start:end], A_output[start:end])
         output = pd.DataFrame(S_output.copy(), columns=S.index)
-        # print(output)
-        return output
+        #output2 = pd.DataFrame(A_output.copy(), columns=A.index)
+       
+       # print(output)
+        return output #, output2

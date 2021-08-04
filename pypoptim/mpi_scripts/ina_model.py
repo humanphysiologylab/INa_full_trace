@@ -83,6 +83,6 @@ class InaModel:
                            S_output[start:end], A_output[start:end])
         output = pd.DataFrame(S_output.copy(), columns=S.index)
         #output2 = pd.DataFrame(A_output.copy(), columns=A.index)
-       
-       # print(output)
+
+        #print(output)
         return output #, output2

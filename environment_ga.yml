@@ -1,4 +1,4 @@
-name: null
+name: env
 channels:
   - conda-forge
   - defaults
@@ -95,4 +95,4 @@ dependencies:
     - image==1.5.33
     - pillow==8.3.0
     - sqlparse==0.4.1
-prefix: /home/nik/Documents/comparison/INa_full_trace/envs/env
+prefix: /data4t/student/21-AVO/INa_full_trace/envs/env

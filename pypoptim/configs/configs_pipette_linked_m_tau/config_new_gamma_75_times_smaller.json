@@ -3,7 +3,7 @@
   "n_elites": 16,
   "n_generations": 500,
 
-  "output_folder_name": "../../../results/ina_pipette_linked_m_tau/",
+  "output_folder_name": "../../../results/weighted_ina_pipette_linked_m_tau/",
 
   "loss": "RMSE",
   "columns_control": ["I_out"],
@@ -152,9 +152,8 @@
           "is_multiplier": false
         }
       },
-      "filename_phenotype": "../../../data/training/art_data_linked_m_tau.csv"
-      #,
-      #"filename_sample_weight": "../../../data/sample_weights/weight_10_for_tails.csv"
+      "filename_phenotype": "../../../data/training/art_data_linked_m_tau.csv"#,
+      #"filename_sample_weight": "../../../data/sample_weights/weights_ina.csv"
       # "filename_sample_weight": "../../../data/sample_weights/weight_10_for_35_mV.csv"
 
     }

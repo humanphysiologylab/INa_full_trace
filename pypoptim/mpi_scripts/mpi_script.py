@@ -14,8 +14,6 @@ from solmodel import SolModel
 from pypoptim.algorythm.ga import GA
 
 from pypoptim.helpers import argmin, is_values_inside_bounds
-from pypoptim import Timer
-
 from io_utils import prepare_config, update_output_dict, backup_config, dump_epoch, save_sol_best
 from mpi_utils import allocate_recvbuf, allgather, population_from_recvbuf
 
@@ -60,7 +58,8 @@ def mpi_script(config_filename):
                   bounds=config['runtime']['bounds'],
                   gammas=config['runtime']['gammas'],
                   mask_log10_scale=config['runtime']['mask_multipliers'],
-                  rng=rng)
+                  rng=rng,
+                  gamma_default=config['runtime']['kw_ga']['gamma'])
 
     initial_population_filename = config.get('initial_population_filename', None)
     if initial_population_filename is not None:
@@ -70,7 +69,7 @@ def mpi_script(config_filename):
         backup_config(config)
 
     batch = ga_optim.generate_population(config['runtime']['n_orgsnisms_per_process'])
-    timer = Timer()
+
 
     if comm_rank == 0:
         pbar = tqdm(total=config['n_generations'], ascii=True)
@@ -80,7 +79,7 @@ def mpi_script(config_filename):
     # os.makedirs(dirname_save, exist_ok=True)
 
     for epoch in range(config['n_generations']):
-        timer.start('calc')
+
         if comm_rank == 0:
             pbar.set_postfix_str("CALC")
         for i, sol in enumerate(batch):
@@ -95,9 +94,7 @@ def mpi_script(config_filename):
             #        filename_save = os.path.join(dirname_save, filename_save)
             #        np.save(filename_save, sol['phenotype'][exp_cond_name].values)
 
-        timer.end('calc')
 
-        timer.start('gather')
         if comm_rank == 0:
             pbar.set_postfix_str("GATHER")
         allgather(batch, recvbuf_dict, comm)
@@ -107,9 +104,7 @@ def mpi_script(config_filename):
         shift = comm_rank * n_orgsnisms_per_process
         assert all(sol_b.is_all_equal(sol_p) for sol_b, sol_p in zip(batch, population[shift:]))
 
-        timer.end('gather')
 
-        timer.start('save')
         if comm_rank == 0:
             pbar.set_postfix_str("SAVE")
 
@@ -135,9 +130,7 @@ def mpi_script(config_filename):
 
         if comm_rank == (comm_rank_best + 1) % comm_size:
             dump_epoch(recvbuf_dict, config)
-        timer.end('save')
 
-        timer.start('gene')
         if comm_rank == 0:
             pbar.set_postfix_str("GENE")
 
@@ -166,16 +159,14 @@ def mpi_script(config_filename):
         #            elites_batch.append(sol)
 
 
-        timer.end('gene')
+
 
         if comm_rank == 0:
             with open(os.path.join(config['runtime']['output']['folder'], 'runtime.log'), 'w') as f:
-                print(timer.report(), file=f)
                 print(f'# epoch: {epoch}', file=f)
             pbar.update(1)
             pbar.refresh()
 
-        timer.clear()
 
     if comm_rank == 0:
         pbar.set_postfix_str("DONE")

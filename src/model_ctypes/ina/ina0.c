@@ -16,7 +16,7 @@ void compute_algebraic(const double time,  double *STATES, double *CONSTANTS,  d
   //tau_m = 1 / (a0_m * exp(v_m[i-1] / (s_m)) + b0_m * exp(v_m[i-1] / (-delta_m)))
   ALGEBRAIC[1] = 1/(CONSTANTS[6] * exp(- STATES[2]/CONSTANTS[9]) + CONSTANTS[7]*exp(STATES[2]/CONSTANTS[8]));
   //tau_h = 1 / (a0_h * exp(v_m[i-1] / (-s_h)) + b0_h * exp(v_m[i-1] / (delta_h)))
-  ALGEBRAIC[2] = CONSTANTS[14] + 1/(CONSTANTS[10] * exp( STATES[2]/CONSTANTS[13]) + CONSTANTS[11]*exp(-STATES[2]/CONSTANTS[12]));
+  ALGEBRAIC[2] = CONSTANTS[14] + 1/(CONSTANTS[10] * exp(- STATES[2]/CONSTANTS[13]) + CONSTANTS[11]*exp(STATES[2]/CONSTANTS[12]));
   //tau_j = tau_j_const + 1 / (a0_j * exp(v_m[i-1] / (s_j)) + b0_j * exp(v_m[i-1] / (-delta_j)))
   ALGEBRAIC[3] = 1 / (1 + exp((-CONSTANTS[20] - STATES[2])/CONSTANTS[22]));
   //m_inf = 1 / (1 + exp((- v_half_m - v_m[i]) / k_m));

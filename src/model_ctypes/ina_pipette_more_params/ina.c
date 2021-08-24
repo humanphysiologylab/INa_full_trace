@@ -13,9 +13,9 @@ void initialize_states_default(double *STATES) {
 
 void compute_algebraic(const double time,  double *STATES, double *CONSTANTS,  double *ALGEBRAIC){//, double *RATES){
   ALGEBRAIC[0] = CONSTANTS[6] + 1/(CONSTANTS[2] * exp(STATES[2]/CONSTANTS[5]) + CONSTANTS[3]*exp(- STATES[2]/CONSTANTS[4]));
-  //tau_m = 1 / (a0_m * exp(v_m / s_m) + b0_m * exp(- v_m / delta_m))
-  ALGEBRAIC[1] = CONSTANTS[11]+ 1/(CONSTANTS[7] * exp(- STATES[2]/CONSTANTS[10]) + CONSTANTS[8]*exp(STATES[2]/CONSTANTS[9]));
-  //tau_h = 1 / (a0_h * exp(-v_m / s_h) + b0_h * exp(v_m / delta_h))
+  //tau_m = tau_m_const + 1 / (a0_m * exp(v_m / s_m) + b0_m * exp(- v_m / delta_m))
+  ALGEBRAIC[1] = CONSTANTS[11] + 1/(CONSTANTS[7] * exp(- STATES[2]/CONSTANTS[10]) + CONSTANTS[8]*exp(STATES[2]/CONSTANTS[9]));
+  //tau_h = tau_h_const + 1 / (a0_h * exp(-v_m / s_h) + b0_h * exp(v_m / delta_h))
   ALGEBRAIC[2] = CONSTANTS[16] + 1/(CONSTANTS[12] * exp(- STATES[2]/CONSTANTS[15]) + CONSTANTS[13]*exp(STATES[2]/CONSTANTS[14]));
   //tau_j = tau_j_const + 1 / (a0_j * exp(-v_m / s_j) + b0_j * exp(v_m / delta_j))
   ALGEBRAIC[3] = 1 / (1 + exp(-(CONSTANTS[22] + STATES[2])/CONSTANTS[24]));

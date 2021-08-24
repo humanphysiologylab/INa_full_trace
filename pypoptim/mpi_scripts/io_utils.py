@@ -6,7 +6,6 @@ from datetime import datetime
 import numpy as np
 import pandas as pd
 
-from pypoptim.helpers import strip_comments
 from gene_utils import create_genes_dict_from_config, \
                        create_constants_dict_from_config, \
                        generate_bounds_gammas_mask_multipliers
@@ -18,7 +17,6 @@ def prepare_config(config_filename):
 
     with open(config_filename) as f:
         text = f.read()
-        text = strip_comments(text)
         config = json.loads(text)
 
     config['runtime'] = dict()

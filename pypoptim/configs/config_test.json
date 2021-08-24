@@ -1,11 +1,15 @@
-{
+_{
+  "seed": 42,
+
   "n_organisms": 16,
   "n_elites": 2,
   "n_generations": 100,
 
 
-  "output_folder_name": "../../results/ina/",
-
+  "output_folder_name": "../../results/test_models/",
+  "crossover_rate": 1.0,
+  "mutation_rate": 1.0,
+  "gamma": 0.015,
   "loss": "RMSE",
   "columns_control": ["I_out"],
   "columns_model": ["I_out"],
@@ -25,7 +29,6 @@
       "params": {
         "c_p": {
           "bounds": [0.1, 10],
-          "gamma": 1,
           "is_multiplier": true
         }
       }
@@ -34,7 +37,6 @@
       "params": {
         "c_m": {
           "bounds": [0.1, 10],
-          "gamma": 1,
           "is_multiplier": true
         }
       },

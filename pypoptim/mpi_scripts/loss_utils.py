@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 def calculate_loss(sol, config):
 
     loss = 0
-
     for exp_cond_name, exp_cond in config['experimental_conditions'].items():
 
         if exp_cond_name == 'common':

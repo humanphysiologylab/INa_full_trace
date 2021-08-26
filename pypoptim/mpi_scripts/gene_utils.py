@@ -36,7 +36,7 @@ def generate_bounds_gammas_mask_multipliers(genes_dict):
     return bounds, gammas, mask_multipliers
 
 
-def update_S_C_from_genes(S, C, genes, exp_cond_name, config):
+def update_C_from_genes(C, genes, exp_cond_name, config):
 
     legend = config['runtime']['legend']
     genes_dict = config['runtime']['genes_dict']
@@ -54,20 +54,9 @@ def update_S_C_from_genes(S, C, genes, exp_cond_name, config):
                     else:
                         C[g_name] = genes[ecn, g_name]
 
-        if g_name in legend['states'].index:
-            for ecn in ['common', exp_cond_name]:
-                if g_name in genes_dict[ecn]:
-                    if genes_dict[ecn][g_name]['is_multiplier']:
-                        S[g_name] *= genes[ecn, g_name]
-                    else:
-                        S[g_name] = genes[ecn, g_name]
-
     for c_name, c in constants_dict_current.items():
         if c_name in legend['constants'].index:
             C[c_name] = c
-        if c_name in legend['states'].index:
-            S[c_name] = c
-
 
 
 def update_genes_from_state(genes, state, config, exp_cond_name):

@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 
 from pypoptim.algorythm import Solution
 
-from gene_utils import update_S_C_from_genes
+from gene_utils import update_C_from_genes
 
 from loss_utils import calculate_loss
 
@@ -40,20 +40,17 @@ class SolModel(Solution):
                 continue
 
             C = legend['constants'].copy()
-            # S = self.config['state']  # ??? TODO, do you need S to be put in self.model.run()?
             S = legend['states'].copy()  # DONE
             A = legend['algebraic'].copy()
 
-            update_S_C_from_genes(S, C, genes, exp_cond_name, self.config)
-            assert np.all(S == legend['states'])
+            update_C_from_genes(C, genes, exp_cond_name, self.config)
             assert np.any(C != legend['constants'])
 
-
-            df_protocol = self.config['runtime']['protocol']  # DONE
-            df_initial_state_protocol = self.config['runtime']['initial_state_protocol']  # DONE
+            df_protocol = self.config['runtime']['protocol']
+            df_initial_state_protocol = self.config['runtime']['initial_state_protocol']
 
             pred = self.model.run(A,
-                                  S,  # <- TODO: do you need this?
+                                  S,  
                                   C,
                                   df_protocol,  # DONE
                                   df_initial_state_protocol,  # DONE
@@ -66,9 +63,7 @@ class SolModel(Solution):
             self['phenotype'][exp_cond_name] = pred.copy()
 
         assert np.all(self._x == genes)
-        loss_test = calculate_loss(self, self.config)
         self._y = calculate_loss(self, self.config)
-        assert self._y == loss_test
 
     def is_all_equal(self, other, keys_check=None):
         if not np.allclose(self.x, other.x):

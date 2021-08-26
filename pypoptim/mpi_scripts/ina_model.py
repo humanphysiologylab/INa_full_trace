@@ -97,6 +97,7 @@ class InaModel:
             self._status = self._run(initial_state_S[-1].copy(), C.values.copy(),
                                      t1, v, len_one_step,
                                      S_output[start:end], A_output[start:end])
+
         output_S = pd.DataFrame(S_output.copy(), columns=S.index)
         output_A = pd.DataFrame(A_output.copy(), columns=A.index)
 

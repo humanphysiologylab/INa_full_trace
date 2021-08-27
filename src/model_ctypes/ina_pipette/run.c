@@ -71,8 +71,10 @@ int run(double *S, double *C,
         }
 
 
-        double t               = 0;
+        double t_out        = 0;
+        double t            = 0;
         int ctx_state       = 0;
+
 
         memcpy(output_S, S, S_SIZE * sizeof(double));
 
@@ -86,12 +88,14 @@ int run(double *S, double *C,
                 .state = 1,
         };
         lsoda_prepare(&ctx, &opt);
+        double dt = 5e-6;
 
         for (int i = 1; i < array_length; i++) {
                 //t = time_array[i-1];
-                double t_out = time_array[i];
+                t_out = time_array[i];
                 data[29] = voltage_command_array[i];
                 lsoda(&ctx, S, &t, t_out);
+                //euler(&t, S, data, dt, t_out);
                 memcpy(output_S + i * S_SIZE, S, S_SIZE * sizeof(double));
                 memcpy(output_A + i * A_SIZE, A, A_SIZE * sizeof(double));
 

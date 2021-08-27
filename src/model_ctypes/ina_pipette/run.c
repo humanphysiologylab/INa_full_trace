@@ -59,19 +59,21 @@ int run(double *S, double *C,
         opt.atol    = atol;
         opt.itask   = 1;
         //opt.hmin    = 1e-12;
-        opt.hmax    = 5e-5;
+        opt.hmax    = 2.5e-5;
 
-        double atol_mult[] = { /*v_comp*/ 1e-2, /*v_p*/ 1e-2, /*v_m*/ 1e-2,
-                                          /*m*/ 1e-4, /*h*/ 1e-4, /*j*/ 1e-4,
-                                          /*I_out*/ 1e-2};
+        double atol_mult[] = { /*v_comp*/ 1e-7, /*v_p*/ 1e-7, /*v_m*/ 1e-7,
+                                          /*m*/ 5e-6, /*h*/ 5e-6, /*j*/ 5e-6,
+                                          /*I_out*/ 1e-4};
 
         for (int i = 0; i < S_SIZE; ++i) {
-                rtol[i] = 5e-5;
+                rtol[i] = 5e-8;
                 atol[i] = atol_mult[i];
         }
 
-        double t               = 0;
+        double t_out        = 0;
+        double t            = 0;
         int ctx_state       = 0;
+
 
         memcpy(output_S, S, S_SIZE * sizeof(double));
 
@@ -85,12 +87,14 @@ int run(double *S, double *C,
                 .state = 1,
         };
         lsoda_prepare(&ctx, &opt);
+        double dt = 5e-6;
 
         for (int i = 1; i < array_length; i++) {
                 //t = time_array[i-1];
-                double t_out = time_array[i];
+                t_out = time_array[i];
                 data[29] = voltage_command_array[i];
                 lsoda(&ctx, S, &t, t_out);
+                //euler(&t, S, data, dt, t_out);
                 memcpy(output_S + i * S_SIZE, S, S_SIZE * sizeof(double));
                 memcpy(output_A + i * A_SIZE, A, A_SIZE * sizeof(double));
 

@@ -1,14 +1,12 @@
-{
-  "seed": 38,
-
+{ 
   "n_organisms": 256,
   "n_elites": 16,
-  "n_generations": 1000,
+  "n_generations": 2000,
 
-  "output_folder_name": "../../../results/test_models/",
+  "output_folder_name": "../../../results/test_models/2000_no_seed_no_weight/",
   "crossover_rate": 1.0,
   "mutation_rate": 1.0,
-  "gamma": 0.15,
+  "gamma": 0.05,
   "loss": "RMSE",
   "columns_control": ["I_out"],
   "columns_model": ["I_out"],

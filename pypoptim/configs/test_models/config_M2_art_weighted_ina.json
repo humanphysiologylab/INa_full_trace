@@ -1,14 +1,14 @@
 {
-  
+  "seed": 38,
 
   "n_organisms": 256,
   "n_elites": 16,
-  "n_generations": 2000,
+  "n_generations": 1000,
 
-  "output_folder_name": "../../../results/test_models/2000_no_seed_no_weight/",
+  "output_folder_name": "../../../results/test_models/",
   "crossover_rate": 1.0,
   "mutation_rate": 1.0,
-  "gamma": 0.05,
+  "gamma": 0.15,
   "loss": "RMSE",
   "columns_control": ["I_out"],
   "columns_model": ["I_out"],
@@ -147,7 +147,8 @@
           "is_multiplier": false
         }
       },
-      "filename_phenotype": "../../../data/test_models/trace_M2_art.csv"
+      "filename_phenotype": "../../../data/test_models/trace_M2_art.csv",
+      "filename_sample_weight": "../../../data/sample_weights/weights_ina.csv"
 
     }
   }

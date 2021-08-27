@@ -3,12 +3,12 @@
 
   "n_organisms": 256,
   "n_elites": 16,
-  "n_generations": 2000,
+  "n_generations": 1000,
 
-  "output_folder_name": "../../../results/test_models/2000_no_seed_no_weight/",
+  "output_folder_name": "../../../results/test_models/diff_log/",
   "crossover_rate": 1.0,
   "mutation_rate": 1.0,
-  "gamma": 0.05,
+  "gamma": 0.015,
   "loss": "RMSE",
   "columns_control": ["I_out"],
   "columns_model": ["I_out"],
@@ -46,12 +46,12 @@
           "is_multiplier": true
         },
         "delta_m": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
+          "bounds": [1.0, 100.0],
+          "is_multiplier": false
         },
         "s_m": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
+          "bounds": [1.0, 100.0],
+          "is_multiplier": false
         },
         "a0_h": {
           "bounds": [0.1, 10],
@@ -62,12 +62,12 @@
           "is_multiplier": true
         },
         "delta_h": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
+          "bounds": [1.0, 100.0],
+          "is_multiplier": false
         },
         "s_h": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
+          "bounds": [1.0, 100.0],
+          "is_multiplier": false
         },
         "a0_j": {
           "bounds": [0.1, 10],
@@ -78,12 +78,12 @@
           "is_multiplier": true
         },
         "delta_j": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
+          "bounds": [1.0, 100.0],
+          "is_multiplier": false
         },
         "s_j": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
+          "bounds": [1.0, 100.0],
+          "is_multiplier": false
         },
         "tau_j_const": {
           "bounds": [0.1, 10],

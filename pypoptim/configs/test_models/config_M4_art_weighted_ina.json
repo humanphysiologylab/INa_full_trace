@@ -1,23 +1,23 @@
 {
-  
+  "seed": 38,
 
   "n_organisms": 256,
   "n_elites": 16,
-  "n_generations": 2000,
+  "n_generations": 1000,
 
-  "output_folder_name": "../../../results/test_models/2000_no_seed_no_weight/",
+  "output_folder_name": "../../../results/test_models/",
   "crossover_rate": 1.0,
   "mutation_rate": 1.0,
-  "gamma": 0.05,
+  "gamma": 0.15,
   "loss": "RMSE",
   "columns_control": ["I_out"],
   "columns_model": ["I_out"],
   "column_stim_protocol": ["v"],
 
-  "filename_so": "../../../src/model_ctypes/ina_pipette/ina.so",
-  "filename_legend_states": "../../../src/model_ctypes/ina_pipette/legend_states.csv",
-  "filename_legend_constants": "../../../src/model_ctypes/ina_pipette/legend_test.csv",
-  "filename_legend_algebraic": "../../../src/model_ctypes/ina_pipette/legend_algebraic.csv",
+  "filename_so": "../../../src/model_ctypes/ina_pipette_linked_minf_tau/ina.so",
+  "filename_legend_states": "../../../src/model_ctypes/ina_pipette_linked_minf_tau/legend_states.csv",
+  "filename_legend_constants": "../../../src/model_ctypes/ina_pipette_linked_minf_tau/legend_test.csv",
+  "filename_legend_algebraic": "../../../src/model_ctypes/ina_pipette_linked_minf_tau/legend_algebraic.csv",
   "filename_protocol": "../../../data/protocols/protocol_trace.csv",
   "filename_initial_state_protocol": "../../../data/protocols/protocol_initial_state_x3.csv",
 
@@ -41,14 +41,6 @@
           "bounds": [0.1, 10],
           "is_multiplier": true
         },
-        "b0_m": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
-        },
-        "delta_m": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
-        },
         "s_m": {
           "bounds": [0.1, 10],
           "is_multiplier": true
@@ -57,27 +49,11 @@
           "bounds": [0.1, 10],
           "is_multiplier": true
         },
-        "b0_h": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
-        },
-        "delta_h": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
-        },
         "s_h": {
           "bounds": [0.1, 10],
           "is_multiplier": true
         },
         "a0_j": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
-        },
-        "b0_j": {
-          "bounds": [0.1, 10],
-          "is_multiplier": true
-        },
-        "delta_j": {
           "bounds": [0.1, 10],
           "is_multiplier": true
         },
@@ -147,7 +123,8 @@
           "is_multiplier": false
         }
       },
-      "filename_phenotype": "../../../data/test_models/trace_M2_art.csv"
+      "filename_phenotype": "../../../data/test_models/trace_M4_art.csv",
+      "filename_sample_weight": "../../../data/sample_weights/weights_ina.csv"
 
     }
   }

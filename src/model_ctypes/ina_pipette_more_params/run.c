@@ -70,6 +70,7 @@ int run(double *S, double *C,
                 atol[i] = atol_mult[i];
         }
 
+
         double t               = 0;
         int ctx_state       = 0;
 

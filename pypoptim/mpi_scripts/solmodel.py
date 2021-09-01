@@ -44,7 +44,7 @@ class SolModel(Solution):
             A = legend['algebraic'].copy()
 
             update_C_from_genes(C, genes, exp_cond_name, self.config)
-            assert np.any(C != legend['constants'])
+            #assert np.any(C != legend['constants'])
 
             df_protocol = self.config['runtime']['protocol']
             df_initial_state_protocol = self.config['runtime']['initial_state_protocol']
@@ -56,7 +56,7 @@ class SolModel(Solution):
                                   df_initial_state_protocol,  # DONE
                                   **self.config)
             self._status = self.model.status
-            if self._status != self.__status_valid:
+            if False: # self._status != self.__status_valid:
                 self._x = genes.values
                 self._y = np.nan
                 return

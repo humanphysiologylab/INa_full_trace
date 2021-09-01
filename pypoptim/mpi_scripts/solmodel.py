@@ -56,7 +56,7 @@ class SolModel(Solution):
                                   df_initial_state_protocol,  # DONE
                                   **self.config)
             self._status = self.model.status
-            if False:#self._status != self.__status_valid:
+            if (self._status != self.__status_valid) or (np.any(np.isnan(pred))):
 
                 self._x = genes.values
                 self._y = np.nan

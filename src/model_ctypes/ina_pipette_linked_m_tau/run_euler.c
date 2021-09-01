@@ -9,10 +9,6 @@
 int rhs(double t, double *y, double *ydot, void *data) {
 
         double *C = (double *)data, *A = ((double *)data) + C_SIZE;
-        for (int i = 0; i < S_SIZE; ++i) {
-          ydot[i] = 0.;  // for safety
-        }
-        
         compute_rates(t, y, C, A, ydot);
         return 0;
 }
@@ -49,13 +45,9 @@ int run(double *S, double *C,
 
         double data[C_SIZE + A_SIZE];
         double *A = data + C_SIZE;
+
         for (int i = 0; i < C_SIZE; ++i) {
-                //data[i] = C[i];
-                if (i < C_SIZE) {
-                  data[i] = C[i];
-                } else {
-                  data[i] = 0.;
-                }
+                data[i] = C[i];
         }
 
         double atol[S_SIZE], rtol[S_SIZE];
@@ -77,8 +69,6 @@ int run(double *S, double *C,
                 rtol[i] = 5e-8;
                 atol[i] = atol_mult[i];
         }
-
-
         double t_out        = 0;
         double t            = 0;
         int ctx_state       = 0;
@@ -95,20 +85,22 @@ int run(double *S, double *C,
                 .state = 1,
         };
         lsoda_prepare(&ctx, &opt);
-        //double dt = 5e-8;
+        double dt = 5e-8;
 
         for (int i = 1; i < array_length; i++) {
                 t_out = time_array[i];
-                data[31] = voltage_command_array[i];
-                lsoda(&ctx, S, &t, t_out);
-                //euler(&t, S, data, dt, t_out);
+                data[25] = voltage_command_array[i];
+                //lsoda(&ctx, S, &t, t_out);
+                euler(&t, S, data, dt, t_out);
                 memcpy(output_S + i * S_SIZE, S, S_SIZE * sizeof(double));
                 memcpy(output_A + i * A_SIZE, A, A_SIZE * sizeof(double));
 
-                if (ctx.state != 2) {
+                if (0){ // (ctx.state != 2) {
                         return ctx.state;
                 }
+
         }
+
         ctx_state = ctx.state;
         lsoda_free(&ctx);
 

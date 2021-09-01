@@ -50,13 +50,14 @@ class SolModel(Solution):
             df_initial_state_protocol = self.config['runtime']['initial_state_protocol']
 
             pred = self.model.run(A,
-                                  S,  
+                                  S,
                                   C,
                                   df_protocol,  # DONE
                                   df_initial_state_protocol,  # DONE
                                   **self.config)
             self._status = self.model.status
-            if False: # self._status != self.__status_valid:
+            if False:#self._status != self.__status_valid:
+
                 self._x = genes.values
                 self._y = np.nan
                 return

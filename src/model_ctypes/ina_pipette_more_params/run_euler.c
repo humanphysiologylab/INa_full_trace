@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../liblsoda/src/common.h"
-#include "../../liblsoda/src/lsoda.h"
 #include "./ina.h"
 
 int rhs(double t, double *y, double *ydot, void *data) {
@@ -50,26 +48,6 @@ int run(double *S, double *C,
                 data[i] = C[i];
         }
 
-        double atol[S_SIZE], rtol[S_SIZE];
-        int neq = S_SIZE;
-
-        struct lsoda_opt_t opt = {0};
-        opt.ixpr    = 0;
-        opt.rtol    = rtol;
-        opt.atol    = atol;
-        opt.itask   = 1;
-        //opt.hmin    = 1e-12;
-        opt.hmax    = 2.5e-5;
-
-        double atol_mult[] = { /*v_comp*/ 1e-7, /*v_p*/ 1e-7, /*v_m*/ 1e-7,
-                                          /*m*/ 5e-6, /*h*/ 5e-6, /*j*/ 5e-6,
-                                          /*I_out*/ 1e-4};
-
-        for (int i = 0; i < S_SIZE; ++i) {
-                rtol[i] = 5e-8;
-                atol[i] = atol_mult[i];
-        }
-
         double t_out        = 0;
         double t            = 0;
         int ctx_state       = 0;
@@ -79,13 +57,7 @@ int run(double *S, double *C,
         compute_algebraic(t, S, C, A);
         memcpy(output_A, A, A_SIZE * sizeof(double));
 
-        struct lsoda_context_t ctx = {
-                .function = rhs,
-                .neq = neq,
-                .data = data,
-                .state = 1,
-        };
-        lsoda_prepare(&ctx, &opt);
+
         double dt = 5e-8;
 
         for (int i = 1; i < array_length; i++) {
@@ -96,12 +68,9 @@ int run(double *S, double *C,
                 memcpy(output_S + i * S_SIZE, S, S_SIZE * sizeof(double));
                 memcpy(output_A + i * A_SIZE, A, A_SIZE * sizeof(double));
 
-                if (0){ // (ctx.state != 2) {
-                        return ctx.state;
-                }
         }
-        ctx_state = ctx.state;
-        lsoda_free(&ctx);
+        ctx_state = 2;
+
 
         return ctx_state;
 }

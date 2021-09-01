@@ -9,6 +9,9 @@
 int rhs(double t, double *y, double *ydot, void *data) {
 
         double *C = (double *)data, *A = ((double *)data) + C_SIZE;
+        for (int i = 0; i < S_SIZE; ++i) {
+          ydot[i] = 0.;  // for safety
+        }
         compute_rates(t, y, C, A, ydot);
         return 0;
 }
@@ -47,7 +50,12 @@ int run(double *S, double *C,
         double *A = data + C_SIZE;
 
         for (int i = 0; i < C_SIZE; ++i) {
-                data[i] = C[i];
+                //data[i] = C[i];
+                if (i < C_SIZE) {
+                  data[i] = C[i];
+                } else {
+                  data[i] = 0.;
+                }
         }
 
         double atol[S_SIZE], rtol[S_SIZE];

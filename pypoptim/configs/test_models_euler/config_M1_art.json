@@ -1,6 +1,6 @@
-{ 
-  "n_organisms": 32,
-  "n_elites": 4,
+{
+  "n_organisms": 10,
+  "n_elites": 1,
   "n_generations": 10,
 
   "output_folder_name": "../../../results/test_models/euler/",

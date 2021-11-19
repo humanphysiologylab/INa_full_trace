@@ -40,20 +40,21 @@ class SolModel(Solution):
                 continue
 
             C = legend['constants'].copy()
-            S = legend['states'].copy()  # DONE
+            S = legend['states'].copy() 
             A = legend['algebraic'].copy()
 
             update_C_from_genes(C, genes, exp_cond_name, self.config)
             #assert np.any(C != legend['constants'])
-
+            n_sections = self.config['runtime']['n_sections']
             df_protocol = self.config['runtime']['protocol']
             df_initial_state_protocol = self.config['runtime']['initial_state_protocol']
 
             pred = self.model.run(A,
                                   S,
                                   C,
-                                  df_protocol,  # DONE
-                                  df_initial_state_protocol,  # DONE
+                                  df_protocol,  
+                                  df_initial_state_protocol,
+                                  n_sections = n_sections, 
                                   **self.config)
             self._status = self.model.status
             if (self._status != self.__status_valid) or (np.any(np.isnan(pred))):

@@ -21,6 +21,7 @@ def prepare_config(config_filename):
 
     config['runtime'] = dict()
 
+    config['runtime']['n_sections'] = 20 if 'n_sections' not in config else config['n_sections']  
     config['runtime']['config_path'] = config_path
     config['runtime']['filename_so_abs'] = os.path.normpath(os.path.join(config_path, config['filename_so']))
 

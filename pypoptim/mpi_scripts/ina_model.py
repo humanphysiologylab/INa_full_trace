@@ -66,6 +66,7 @@ class InaModel:
         return self._status
 
     def run(self, A, S, C, df_protocol, df_initial_state_protocol,
+            n_sections = 20,
             return_algebraic=False, **kwargs):
 
         t = df_protocol.t.values
@@ -86,7 +87,7 @@ class InaModel:
 
         S_output = np.zeros((output_len, len(S)))
         A_output = np.zeros((output_len, len(A)))
-        n_sections = 20
+        
         split_indices = np.linspace(0, output_len, n_sections + 1).astype(int)
         null_start, null_end = split_indices[0], split_indices[1]
         len_one_step = null_end - null_start

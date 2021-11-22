@@ -240,8 +240,8 @@
     "gamma": 0.05,
     "loss": "RMSE",
     "mutation_rate": 1.0,
-    "n_elites": 16,
-    "n_generations": 1000,
-    "n_organisms": 256,
+    "n_elites": 32,
+    "n_generations": 800,
+    "n_organisms": 512,
     "output_folder_name": "../../../results/M1_real/2020_12_26_0014"
 }

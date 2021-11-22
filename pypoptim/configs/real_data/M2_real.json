@@ -30,11 +30,11 @@
       "params": {
 
         "c_p": {
-          "bounds": [0.1, 10],
+          "bounds": [0.01, 2],
           "is_multiplier": true
         },
         "c_m": {
-          "bounds": [0.1, 10],
+          "bounds": [0.1, 5],
           "is_multiplier": true
         },
         "a0_m": {
@@ -53,6 +53,10 @@
           "bounds": [0.1, 10],
           "is_multiplier": true
         },
+        "tau_m_const": {
+          "bounds": [0.001, 2],
+          "is_multiplier": true
+        },
         "a0_h": {
           "bounds": [0.1, 10],
           "is_multiplier": true
@@ -66,6 +70,10 @@
           "is_multiplier": true
         },
         "s_h": {
+          "bounds": [0.1, 10],
+          "is_multiplier": true
+        },
+        "tau_h_const": {
           "bounds": [0.1, 10],
           "is_multiplier": true
         },
@@ -90,15 +98,15 @@
           "is_multiplier": true
         },
         "R": {
-          "bounds": [0.1, 10],
+          "bounds": [0.1, 100],
           "is_multiplier": true
         },
         "R_f": {
-          "bounds": [0.1, 10],
+          "bounds": [0.01, 10],
           "is_multiplier": true
         },
         "g_max": {
-          "bounds": [0.1, 10],
+          "bounds": [0.5, 100],
           "is_multiplier": true
         },
         "g_leak": {
@@ -110,11 +118,11 @@
           "is_multiplier": true
         },
         "x_c_comp": {
-          "bounds": [0.01, 1.1],
+          "bounds": [0.01, 1.01],
           "is_multiplier": false
         },
         "x_r_comp": {
-          "bounds": [0.01, 1.1],
+          "bounds": [0.01, 1.01],
           "is_multiplier": false
         },
         "alpha": {

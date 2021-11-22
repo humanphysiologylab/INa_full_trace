@@ -15,13 +15,13 @@
                 "R": {
                     "bounds": [
                         0.1,
-                        10
+                        100
                     ],
                     "is_multiplier": true
                 },
                 "R_f": {
                     "bounds": [
-                        0.1,
+                        0.01,
                         10
                     ],
                     "is_multiplier": true
@@ -78,14 +78,14 @@
                 "c_m": {
                     "bounds": [
                         0.1,
-                        10
+                        5
                     ],
                     "is_multiplier": true
                 },
                 "c_p": {
                     "bounds": [
-                        0.1,
-                        10
+                        0.01,
+                        2
                     ],
                     "is_multiplier": true
                 },
@@ -119,8 +119,8 @@
                 },
                 "g_max": {
                     "bounds": [
-                        0.1,
-                        10
+                        0.5,
+                        100
                     ],
                     "is_multiplier": true
                 },
@@ -159,10 +159,24 @@
                     ],
                     "is_multiplier": true
                 },
-                "tau_j_const": {
+                "tau_m_const": {
+                    "bounds": [
+                        0.001,
+                        2
+                    ],
+                    "is_multiplier": true
+                },
+                "tau_h_const": {
                     "bounds": [
                         0.1,
                         10
+                    ],
+                    "is_multiplier": true
+                },
+                "tau_j_const": {
+                    "bounds": [
+                        0.01,
+                        100
                     ],
                     "is_multiplier": true
                 },
@@ -190,14 +204,14 @@
                 "x_c_comp": {
                     "bounds": [
                         0.01,
-                        1.1
+                        1.01
                     ],
                     "is_multiplier": false
                 },
                 "x_r_comp": {
                     "bounds": [
                         0.01,
-                        1.1
+                        1.01
                     ],
                     "is_multiplier": false
                 }

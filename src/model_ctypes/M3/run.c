@@ -79,7 +79,7 @@ int run(double *S, double *C,
         retval = CVodeSetUserData(cvode_mem, data);
         for (int i = 1; i < array_length; i++) {
                 tout = time_array[i];
-                data[23] = voltage_command_array[i];
+                data[25] = voltage_command_array[i];
                 retval = CVodeSetStopTime(cvode_mem, tout);
                 
                 // printf("At t = %0.4e    tout = %0.4e   data =%14.6e\n", t, tout, data[29]);

@@ -2,7 +2,7 @@
 // #define _INA_CVODE_H_
 
 #define S_SIZE 7
-#define C_SIZE 26
+#define C_SIZE 28
 #define A_SIZE 12
 
 

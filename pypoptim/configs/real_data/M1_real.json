@@ -243,5 +243,5 @@
     "n_elites": 32,
     "n_generations": 800,
     "n_organisms": 512,
-    "output_folder_name": "../../../results/M1_real/2020_12_26_0014"
+    "output_folder_name": "../../../results/M1_real/"
 }

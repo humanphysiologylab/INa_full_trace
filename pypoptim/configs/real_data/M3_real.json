@@ -131,7 +131,7 @@
           "is_multiplier": false
         }
       },
-      "filename_phenotype": "../../../data/real/activation/start.csv",
+      "filename_phenotype": "../../../data/real/activation/2020_12_16_0018.csv",
       "filename_sample_weight": "../../../data/sample_weights/ina.csv"
     }
   }

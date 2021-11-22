@@ -81,12 +81,9 @@ int run(double *S, double *C,
         
         for (int i = 1; i < array_length; i++) {
                 tout = time_array[i];
-                data[31] = voltage_command_array[i];
+                data[29] = voltage_command_array[i];
                 retval = CVodeSetStopTime(cvode_mem, tout);
-                
-                // printf("At t = %0.4e    tout = %0.4e   data =%14.6e\n", t, tout, data[29]);
                 retval = CVode(cvode_mem, tout, V_S, &t, CV_NORMAL);
-                // printf("THIRD A1= %0.4e  A2= %0.4e  A3= %0.4e  A4= %0.4e  A5= %0.4e  A6= %0.4e  A7 %0.4e A8 %0.4e A9 %0.4e A10 %0.4e A11 %0.4e A12 %0.4e \n",NV_DATA_S(V_A)[0],  NV_DATA_S(V_A)[1], NV_DATA_S(V_A)[2], NV_DATA_S(V_A)[3], NV_DATA_S(V_A)[4], NV_DATA_S(V_A)[5], NV_DATA_S(V_A)[6],  NV_DATA_S(V_A)[7], NV_DATA_S(V_A)[8], NV_DATA_S(V_A)[9], NV_DATA_S(V_A)[10], NV_DATA_S(V_A)[11]);
                 memcpy(output_S + i * S_SIZE, NV_DATA_S(V_S), S_SIZE * sizeof(double));
                 memcpy(output_A + i * A_SIZE, NV_DATA_S(V_A), A_SIZE * sizeof(double));
         }

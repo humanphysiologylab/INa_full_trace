@@ -34,7 +34,7 @@ class SolModel(Solution):
 
         genes = pd.Series(self.x, index=self.config['runtime']['m_index'])
 
-        for exp_cond_name in self.config['experimental_conditions']:
+        for exp_cond_name, exp_cond in self.config['experimental_conditions'].items():
 
             if exp_cond_name == 'common':
                 continue
@@ -45,8 +45,8 @@ class SolModel(Solution):
 
             update_C_from_genes(C, genes, exp_cond_name, self.config)
             #assert np.any(C != legend['constants'])
-            n_sections = self.config['runtime']['n_sections']
-            df_protocol = self.config['runtime']['protocol']
+            n_sections = exp_cond['n_sections']
+            df_protocol = exp_cond['protocol']
             df_initial_state_protocol = self.config['runtime']['initial_state_protocol']
 
             pred = self.model.run(A,
@@ -54,8 +54,8 @@ class SolModel(Solution):
                                   C,
                                   df_protocol,  
                                   df_initial_state_protocol,
-                                  n_sections = n_sections, 
-                                  **self.config)
+                                  n_sections, )
+                                #   **self.config)
             self._status = self.model.status
             if (self._status != self.__status_valid) or (np.any(np.isnan(pred))):
 

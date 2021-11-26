@@ -21,7 +21,6 @@ def prepare_config(config_filename):
 
     config['runtime'] = dict()
 
-    config['runtime']['n_sections'] = 20 if 'n_sections' not in config else config['n_sections']  
     config['runtime']['config_path'] = config_path
     config['runtime']['filename_so_abs'] = os.path.normpath(os.path.join(config_path, config['filename_so']))
 
@@ -54,6 +53,11 @@ def prepare_config(config_filename):
         filename_phenotype = os.path.normpath(os.path.join(config_path, exp_cond['filename_phenotype']))
         exp_cond['phenotype'] = pd.read_csv(filename_phenotype)
         exp_cond['filename_phenotype'] = filename_phenotype
+        protocol = pd.read_csv(os.path.normpath(os.path.join(config_path, exp_cond["filename_protocol"])),
+                                       usecols=['t','v'])
+        exp_cond['protocol'] = protocol
+    
+        exp_cond['n_sections'] = exp_cond.get('n_sections', 20)
 
         if 'filename_sample_weight' in exp_cond:
             #print('ok')
@@ -61,9 +65,9 @@ def prepare_config(config_filename):
             exp_cond['sample_weight'] = pd.read_csv(filename_sample_weight).w
             exp_cond['filename_sample_weight'] = filename_sample_weight
 
-    protocol = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_protocol"])),
-                                   usecols=['t','v'])
-    config['runtime']['protocol'] = protocol
+    # protocol = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_protocol"])),
+    #                                usecols=['t','v'])
+    # config['runtime']['protocol'] = protocol
     initial_state_protocol = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_initial_state_protocol"])),
                                    usecols=['t','v'])
     config['runtime']['initial_state_protocol'] = initial_state_protocol

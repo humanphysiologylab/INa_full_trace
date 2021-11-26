@@ -66,7 +66,7 @@ class InaModel:
         return self._status
 
     def run(self, A, S, C, df_protocol, df_initial_state_protocol,
-            n_sections = 20,
+            n_sections,
             return_algebraic=False, **kwargs):
 
         t = df_protocol.t.values

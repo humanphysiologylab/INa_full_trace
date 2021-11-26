@@ -1,9 +1,7 @@
 {
-  
-
-  "n_organisms": 512,
-  "n_elites": 32,
-  "n_generations": 800,
+  "n_organisms": 256,
+  "n_elites": 16,
+  "n_generations": 700,
 
   "output_folder_name": "../../../results/M3_real_inact/",
   "crossover_rate": 1.0,
@@ -13,23 +11,16 @@
   "columns_control": ["I_out"],
   "columns_model": ["I_out"],
   "column_stim_protocol": ["v"],
-  "n_sections":15,
-
   "filename_so": "../../../src/model_ctypes/M3/ina.so",
   "filename_legend_states": "../../../src/model_ctypes/M3/legend_states.csv",
   "filename_legend_constants": "../../../src/model_ctypes/M3/legend_test.csv",
   "filename_legend_algebraic": "../../../src/model_ctypes/M3/legend_algebraic.csv",
-  "filename_protocol": "../../../data/protocols/protocol_inact.csv",
   "filename_initial_state_protocol": "../../../data/protocols/protocol_initial_state.csv",
 
 
-
   "experimental_conditions": {
-
     "common": {
-
       "params": {
-
         "c_p": {
           "bounds": [0.01, 2],
           "is_multiplier": true
@@ -132,8 +123,10 @@
           "is_multiplier": false
         }
       },
-      "filename_phenotype": "../../../data/real/inactivation/2020_12_16_0018.csv",
-      "filename_sample_weight": "../../../data/sample_weights/ina_inact.csv"
+      "n_sections":15,
+      "filename_phenotype": "../../../data/real/inactivation/2020_12_19_0036.csv",
+      "filename_sample_weight": "../../../data/sample_weights/ina_inact.csv",
+      "filename_protocol": "../../../data/protocols/protocol_inact.csv"
     }
   }
 }

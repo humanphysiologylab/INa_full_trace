@@ -43,18 +43,24 @@ class InaModel:
         # ctypes_obj.compute_algebraic.restype = ctypes.c_void_p
         ctypes_obj.run.argtypes = [
             np.ctypeslib.ndpointer(
-                dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+                dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'
+            ),
             np.ctypeslib.ndpointer(
-                dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+                dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'
+            ),
             np.ctypeslib.ndpointer(
-                dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+                dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'
+            ),
             np.ctypeslib.ndpointer(
-                dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'),
+                dtype=np.float64, ndim=1, flags='C_CONTIGUOUS'
+            ),
             ctypes.c_int,
             np.ctypeslib.ndpointer(
-                dtype=np.float64, ndim=2, flags='C_CONTIGUOUS'),
+                dtype=np.float64, ndim=2, flags='C_CONTIGUOUS'
+            ),
             np.ctypeslib.ndpointer(
-                dtype=np.float64, ndim=2, flags='C_CONTIGUOUS')
+                dtype=np.float64, ndim=2, flags='C_CONTIGUOUS'
+            )
         ]
         ctypes_obj.run.restype = ctypes.c_int
 
@@ -81,9 +87,15 @@ class InaModel:
         initial_state_S = np.zeros((initial_state_len, len(S)))
         initial_state_A = np.zeros((initial_state_len, len(A)))
 
-        self._run(S.values.copy(), C.values.copy(),
-                  t0, v0, initial_state_len,
-                  initial_state_S, initial_state_A)
+        self._run(
+            S.values.copy(),
+            C.values.copy(),
+            t0, 
+            v0, 
+            initial_state_len,
+            initial_state_S, 
+            initial_state_A
+            )
 
         S_output = np.zeros((output_len, len(S)))
         A_output = np.zeros((output_len, len(A)))
@@ -93,14 +105,18 @@ class InaModel:
         len_one_step = null_end - null_start
         t1 = t[null_start : null_end]
         S0 = initial_state_S[-1].copy()
-        # print(S0)
 
         for k in range(n_sections):
             start, end = split_indices[k], split_indices[k + 1]
             v = v_all[start:end]
-            self._status = self._run(S0, C.values.copy(),
-                                     t1, v, len_one_step,
-                                     S_output[start:end], A_output[start:end])
+            self._status = self._run(
+                S0, 
+                C.values.copy(),
+                t1, 
+                v, 
+                len_one_step,
+                S_output[start:end], A_output[start:end]
+                )
 
         output_S = pd.DataFrame(S_output.copy(), columns=S.index)
         output_A = pd.DataFrame(A_output.copy(), columns=A.index)

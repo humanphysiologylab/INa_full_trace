@@ -53,7 +53,7 @@ void compute_algebraic(const realtype time,  N_Vector STATES, N_Vector CONSTANTS
   // Ith(ALGEBRAIC,9) = RNM * Ith(CONSTANTS,0) *(Ith(ALGEBRAIC,5) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,16));
   
   // I_p = 1e9 * c_p * dv_p / dt
-  Ith(ALGEBRAIC,9) = RNM * Ith(CONSTANTS,0) *((Ith(ALGEBRAIC,5) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,16))+(Ith(STATES,2) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,15)));
+  Ith(ALGEBRAIC,9) = RNM * Ith(CONSTANTS,0) *((Ith(ALGEBRAIC,5) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,16))+(Ith(STATES,2) - Ith(STATES,1) - Ith(CONSTANTS,23))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,15)));
   
 
   // I_comp = 1e9 * x_c_comp * d v_comp / dt
@@ -77,8 +77,8 @@ void compute_rates(const realtype time,  N_Vector STATES, N_Vector CONSTANTS,  N
   // // v_p = (v_cp  - v_p) / (r_p * c_p))
   // Ith(RATES,1) = (Ith(ALGEBRAIC,5) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,16));
 
-  // v_p = (v_cp  - v_p) / (r_p * c_p) + (v_m - v_p) / (R * c_p))
-  Ith(RATES,1) = (Ith(ALGEBRAIC,5) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,16)) + (Ith(STATES,2) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,15));
+  // v_p = (v_cp  - v_p) / (r_p * c_p) + (v_m - v_p - v_off) / (R * c_p))
+  Ith(RATES,1) = (Ith(ALGEBRAIC,5) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,16)) + (Ith(STATES,2) - Ith(STATES,1) - Ith(CONSTANTS,23))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,15));
 
   // v_m = (v_p + v_off - v_m ) / (r_m * c_m) - 1e-9 * (I_Na + I_leak) / c_m ;
   Ith(RATES,2) = (Ith(STATES,1) + Ith(CONSTANTS,23) - Ith(STATES,2))/(Ith(CONSTANTS,15)*Ith(CONSTANTS,1)) - NM*(Ith(ALGEBRAIC,6) + Ith(ALGEBRAIC,7))/Ith(CONSTANTS,1);

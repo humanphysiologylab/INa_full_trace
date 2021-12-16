@@ -120,6 +120,8 @@ class InaModel:
 
         output_S = pd.DataFrame(S_output.copy(), columns=S.index)
         output_A = pd.DataFrame(A_output.copy(), columns=A.index)
+        #if you want to see I_out - delete next string, now you will see I_in
+        output_S.I_out = output_A.I_in.copy()
 
         if return_algebraic:
             return output_S, output_A

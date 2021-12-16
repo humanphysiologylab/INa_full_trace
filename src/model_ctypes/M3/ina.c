@@ -56,8 +56,7 @@ void compute_algebraic(const realtype time,  N_Vector STATES, N_Vector CONSTANTS
   // Ith(ALGEBRAIC,9) = RNM * Ith(CONSTANTS,0) *(Ith(ALGEBRAIC,5) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,10));
   
   // I_p = 1e9 * c_p * dv_p / dt
-  Ith(ALGEBRAIC,9) = RNM * Ith(CONSTANTS,0) *((Ith(ALGEBRAIC,5) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,10))+(Ith(STATES,2) - Ith(STATES,1) - Ith(CONSTANTS,21))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,9)));
-  
+  Ith(ALGEBRAIC,9) = RNM * Ith(CONSTANTS,0) *((Ith(ALGEBRAIC,5) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,10)) + (Ith(STATES,2) - Ith(STATES,1) - Ith(CONSTANTS,21))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,9)) - NM*Ith(ALGEBRAIC,6)/ Ith(CONSTANTS,0));
 
   // I_comp = 1e9 * x_c_comp * c_m * d v_comp / dt
   Ith(ALGEBRAIC,10) = RNM * Ith(CONSTANTS,18)  * (Ith(CONSTANTS,23) - Ith(STATES,0))/(Ith(CONSTANTS,18)*Ith(CONSTANTS,19)*(1 - Ith(CONSTANTS,20)));// Ith(RATES,0)

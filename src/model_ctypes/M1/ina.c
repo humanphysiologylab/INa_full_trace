@@ -51,8 +51,11 @@ void compute_algebraic(const realtype time,  N_Vector STATES, N_Vector CONSTANTS
   // I_Na = g_max * h * pow(m,3) * (v_m - v_rev) * j ;
   Ith(ALGEBRAIC,7) = Ith(CONSTANTS,17) * Ith(STATES,4) * pow(Ith(STATES,3),3) * Ith(STATES,5)* (Ith(STATES,2) - Ith(CONSTANTS,28));
   
+  // // I_c = 1e9 * c_m * dv_m / dt
+  // Ith(ALGEBRAIC,8) = RNM * Ith(CONSTANTS,1) * ((Ith(STATES,1) + Ith(CONSTANTS,27) - Ith(STATES,2))/(Ith(CONSTANTS,15)*Ith(CONSTANTS,1)) - NM*(Ith(ALGEBRAIC,6) + Ith(ALGEBRAIC,7))/Ith(CONSTANTS,1));// Ith(RATES,2);
+
   // I_c = 1e9 * c_m * dv_m / dt
-  Ith(ALGEBRAIC,8) = RNM * Ith(CONSTANTS,1) * ((Ith(STATES,1) + Ith(CONSTANTS,27) - Ith(STATES,2))/(Ith(CONSTANTS,15)*Ith(CONSTANTS,1)) - NM*(Ith(ALGEBRAIC,6) + Ith(ALGEBRAIC,7))/Ith(CONSTANTS,1));// Ith(RATES,2);
+  Ith(ALGEBRAIC,8) = RNM * Ith(CONSTANTS,1) * ((Ith(STATES,1) + Ith(CONSTANTS,27) - Ith(STATES,2))/(Ith(CONSTANTS,15)*Ith(CONSTANTS,1)) - NM*(Ith(ALGEBRAIC,7))/Ith(CONSTANTS,1));
 
   // // I_p = 1e9 * c_p * dv_p / dt
   // Ith(ALGEBRAIC,9) = RNM * Ith(CONSTANTS,0) *(Ith(ALGEBRAIC,5) - Ith(STATES,1))/(Ith(CONSTANTS,0)*Ith(CONSTANTS,16));

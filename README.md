@@ -11,3 +11,8 @@ How to remove the environment:
 ```sh
 conda remove --prefix ./env --all
 ```
+How to reconstuct file.so
+```
+cd src/model_ctypes/M1/
+make clean && make ina && make
+```

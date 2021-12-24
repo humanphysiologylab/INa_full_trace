@@ -16,7 +16,7 @@ def calculate_loss(sol, config):
             y = exp_cond['phenotype']['I_out']
             sample_weight = exp_cond.get('sample_weight', None)
             loss += RMSE(x, y, sample_weight=sample_weight)
-        if config['loss'] == 'RMSE_GRAD':
+        elif config['loss'] == 'RMSE_GRAD':
             x = sol['phenotype'][exp_cond_name]['I_out']
             x_grad = sol['phenotype'][exp_cond_name]['grad']
             y = exp_cond['phenotype']['I_out']

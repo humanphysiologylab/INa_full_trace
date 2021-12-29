@@ -22,8 +22,9 @@ def calculate_loss(sol, config):
             y = exp_cond['phenotype']['I_out']
             y_grad = np.gradient(y)
             sample_weight = exp_cond.get('sample_weight', None)
-            loss += RMSE(x, y, sample_weight=sample_weight)/30
-            loss += RMSE(x_grad, y_grad, sample_weight=sample_weight)
+            sample_weight_grad = exp_cond.get('sample_weight_grad', None)
+            loss += RMSE(x, y, sample_weight=sample_weight)/10
+            loss += RMSE(x_grad, y_grad, sample_weight=sample_weight_grad)
         else:
             raise NotImplementedError('I don\'t know your type of loss')
 

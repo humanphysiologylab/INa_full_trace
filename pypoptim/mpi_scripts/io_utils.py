@@ -62,7 +62,10 @@ def prepare_config(config_filename):
         if 'filename_sample_weight' in exp_cond:
             #print('ok')
             filename_sample_weight = os.path.normpath(os.path.join(config_path, exp_cond['filename_sample_weight']))
-            exp_cond['sample_weight'] = pd.read_csv(filename_sample_weight).w
+            sample_weight = pd.read_csv(filename_sample_weight)
+            exp_cond['sample_weight'] = sample_weight.w
+            if 'w_grad' in sample_weight.columns:
+                exp_cond['sample_weight_grad'] = sample_weight.w_grad
             exp_cond['filename_sample_weight'] = filename_sample_weight
 
     # protocol = pd.read_csv(os.path.normpath(os.path.join(config_path, config["filename_protocol"])),

@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import logging
+from pypoptim.losses import RMSE
 
 logger = logging.getLogger(__name__)
 
@@ -66,6 +67,9 @@ class SolModel(Solution):
 
         assert np.all(self._x == genes)
         self._y = calculate_loss(self, self.config)
+        zero_trace = np.zeros(len)
+        self._loss_trace = RMSE(pred.I_out, zero_trace)
+        self._loss_grad = RMSE(pred.grad, zero_trace)
 
     def is_all_equal(self, other, keys_check=None):
         if not np.allclose(self.x, other.x):

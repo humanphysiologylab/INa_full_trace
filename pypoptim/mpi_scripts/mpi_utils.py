@@ -32,6 +32,13 @@ def allgather(batch, recvbuf_dict, comm):
     comm.Allgatherv(sendbuf_loss,   recvbuf_dict['loss'])
     comm.Allgatherv(sendbuf_status, recvbuf_dict['status'])
 
+def allgather_losses(batch, recvbuf_dict, comm):
+    sendbuf_loss_trace = np.array([sol.loss_trace for sol in batch])
+    sendbuf_loss_grad = np.array([sol.loss_grad for sol in batch])
+
+    comm.Allgatherv(sendbuf_loss_trace,  recvbuf_dict['loss_trace'])
+    comm.Allgatherv(sendbuf_loss_grad,  recvbuf_dict['loss_grad'])
+
 
 def population_from_recvbuf(recvbuf_dict, SolModel, config):
 
@@ -47,7 +54,6 @@ def population_from_recvbuf(recvbuf_dict, SolModel, config):
 
     for i in range(config['runtime']['n_organisms']):
         sol = SolModel(recvbuf_genes[i].copy())
-        # , state=state.copy())
         sol._y = recvbuf_loss[i].copy()
         sol._status = recvbuf_status[i].copy()
         population.append(sol)

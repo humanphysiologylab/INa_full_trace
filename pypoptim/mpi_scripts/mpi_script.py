@@ -14,8 +14,8 @@ from solmodel import SolModel
 from pypoptim.algorythm.ga import GA
 
 from pypoptim.helpers import argmin, is_values_inside_bounds
-from io_utils import prepare_config, update_output_dict, backup_config, dump_epoch, save_sol_best
-from mpi_utils import allocate_recvbuf, allgather, population_from_recvbuf
+from io_utils import prepare_config, update_output_dict, backup_config, dump_epoch, dump_losses,  save_sol_best
+from mpi_utils import allocate_recvbuf, allgather, population_from_recvbuf, allgather_losses
 
 
 def mpi_script(config_filename):
@@ -98,6 +98,8 @@ def mpi_script(config_filename):
         if comm_rank == 0:
             pbar.set_postfix_str("GATHER")
         allgather(batch, recvbuf_dict, comm)
+        allgather_losses(batch, recvbuf_dict, comm)
+        
         population = population_from_recvbuf(recvbuf_dict, SolModel, config)
 
         n_orgsnisms_per_process = config['runtime']['n_orgsnisms_per_process']
@@ -130,6 +132,7 @@ def mpi_script(config_filename):
 
         if comm_rank == (comm_rank_best + 1) % comm_size:
             dump_epoch(recvbuf_dict, config)
+            dump_losses(recvbuf_dict, config)
 
         if comm_rank == 0:
             pbar.set_postfix_str("GENE")

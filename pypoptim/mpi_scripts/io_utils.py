@@ -133,7 +133,9 @@ def dump_dict(dct, folder):
 
 def dump_epoch(recvbuf_dict, config):
     dump_dict(recvbuf_dict, config['runtime']['output']['folder_dump'])
-
+    
+def dump_losses(recvbuf_dict, config):
+    dump_dict(recvbuf_dict, config['runtime']['output']['folder_dump'])
 
 def save_sol_best(sol_best, config):
 

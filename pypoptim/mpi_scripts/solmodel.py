@@ -9,7 +9,7 @@ from pypoptim.algorythm import Solution
 
 from gene_utils import update_C_from_genes
 
-from loss_utils import calculate_loss
+from loss_utils import calculate_loss, calculate_loss_another
 
 
 class SolModel(Solution):
@@ -67,9 +67,7 @@ class SolModel(Solution):
 
         assert np.all(self._x == genes)
         self._y = calculate_loss(self, self.config)
-        zero_trace = np.zeros(len)
-        self._loss_trace = RMSE(pred.I_out, zero_trace)
-        self._loss_grad = RMSE(pred.grad, zero_trace)
+        self._loss_trace, self._loss_grad = calculate_loss_another(self, self.config)
 
     def is_all_equal(self, other, keys_check=None):
         if not np.allclose(self.x, other.x):

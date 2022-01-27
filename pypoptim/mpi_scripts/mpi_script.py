@@ -132,7 +132,7 @@ def mpi_script(config_filename):
 
         if comm_rank == (comm_rank_best + 1) % comm_size:
             dump_epoch(recvbuf_dict, config)
-            dump_losses(recvbuf_dict, config)
+            # dump_losses(recvbuf_dict, config)
 
         if comm_rank == 0:
             pbar.set_postfix_str("GENE")

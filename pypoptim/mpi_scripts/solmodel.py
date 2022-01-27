@@ -62,12 +62,18 @@ class SolModel(Solution):
 
                 self._x = genes.values
                 self._y = np.nan
+                self._data['loss_trace'] = np.nan
+                self._data['loss_grad'] = np.nan
                 return
+            
             self['phenotype'][exp_cond_name] = pred.copy()
 
         assert np.all(self._x == genes)
         self._y = calculate_loss(self, self.config)
-        self._loss_trace, self._loss_grad = calculate_loss_another(self, self.config)
+        
+        loss = calculate_loss_another(self, self.config)
+        self._data['loss_trace'] = loss['loss_trace']
+        self._data['loss_grad'] = loss['loss_grad']
 
     def is_all_equal(self, other, keys_check=None):
         if not np.allclose(self.x, other.x):

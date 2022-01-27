@@ -14,10 +14,15 @@ def allocate_recvbuf(config, comm):
     recvbuf_genes = np.empty([comm_size, n_orgsnisms_per_process * genes_size])
     recvbuf_loss = np.empty([comm_size, n_orgsnisms_per_process * 1])
     recvbuf_status = np.empty([comm_size, n_orgsnisms_per_process * 1])
+    
+    recvbuf_loss_trace = np.empty([comm_size, n_orgsnisms_per_process * 1])
+    recvbuf_loss_grad = np.empty([comm_size, n_orgsnisms_per_process * 1])
 
     recvbuf_dict = dict(genes=recvbuf_genes,
                         loss=recvbuf_loss,
-                        status=recvbuf_status)
+                        status=recvbuf_status, 
+                        loss_trace=recvbuf_loss_trace,
+                        loss_grad=recvbuf_loss_grad)
 
     return recvbuf_dict
 
@@ -33,8 +38,8 @@ def allgather(batch, recvbuf_dict, comm):
     comm.Allgatherv(sendbuf_status, recvbuf_dict['status'])
 
 def allgather_losses(batch, recvbuf_dict, comm):
-    sendbuf_loss_trace = np.array([sol.loss_trace for sol in batch])
-    sendbuf_loss_grad = np.array([sol.loss_grad for sol in batch])
+    sendbuf_loss_trace = np.array([sol.data['loss_trace'] for sol in batch])
+    sendbuf_loss_grad = np.array([sol.data['loss_grad'] for sol in batch])
 
     comm.Allgatherv(sendbuf_loss_trace,  recvbuf_dict['loss_trace'])
     comm.Allgatherv(sendbuf_loss_grad,  recvbuf_dict['loss_grad'])

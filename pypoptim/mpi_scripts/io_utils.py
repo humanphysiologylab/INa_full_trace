@@ -188,7 +188,7 @@ def collect_results(case, dirname_results, dump_keys=None):
     dump = {}
     for folder in dump_keys:
         dump[folder] = {}
-        for key in 'genes', 'status', 'loss':
+        for key in 'genes', 'status', 'loss', 'loss_trace','loss_grad':
             filename = os.path.join(config_path, folder, key)
             if os.path.isfile(filename):
                 dump[folder][key] = np.fromfile(filename)
@@ -217,6 +217,6 @@ def collect_results(case, dirname_results, dump_keys=None):
     results = dict(config=config,
                    dump=dump,
                    sol_best=sol_best,
-                   phenotype_best=phenotype_best)
+                   phenotype_best=phenotype_best,)
 
     return results

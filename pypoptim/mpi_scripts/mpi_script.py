@@ -64,11 +64,16 @@ def mpi_script(config_filename):
     initial_population_filename = config.get('initial_population_filename', None)
     if initial_population_filename is not None:
         raise NotImplementedError
+    else:
+        initial_population_filename = config.get('initial_population_filename', None)
+        initial_population_filename = os.path.normpath(os.path.join(config['runtime']['config_path'], initial_population_filename))
+        genes = np.load(initial_population_filename)
+        batch = [ga_optim._SolutionSubclass(genes[_]) for _ in range(len(genes))]
 
     if comm_rank == 0:
         backup_config(config)
 
-    batch = ga_optim.generate_population(config['runtime']['n_orgsnisms_per_process'])
+    # batch = ga_optim.generate_population(config['runtime']['n_orgsnisms_per_process'])
 
 
     if comm_rank == 0:

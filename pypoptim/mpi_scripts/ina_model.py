@@ -118,15 +118,22 @@ class InaModel:
                 S_output[start:end], A_output[start:end]
                 )
         S_output_grad = S_output.copy()
+        # print(S_output_grad)
         S_output_grad = np.append(S_output_grad.T, [np.zeros(output_len)] , axis=0).T
-        S_columns = S.index.to_list()
+        # print(S_output_grad)
+        S_columns = S.index.copy().to_list()
         S_columns.append('grad')
-        output_S = pd.DataFrame(S_output_grad.copy(), columns=S_columns)
-        output_A = pd.DataFrame(A_output.copy(), columns=A.index)
-        #if you want to see I_out - delete next string, now you will see I_in
-        output_S.I_out = output_A.I_in.copy()
+        output_S = pd.DataFrame(S_output_grad.copy(), columns=S_columns.copy())
+        # print(output_S)
+
+        output_A = pd.DataFrame(A_output.copy(), columns=A.index.copy())
+        # if you want to see I_out - delete next string, now you can see I_in
+        # output_S.I_out = output_A.I_in.copy()
+        # print(output_S['I_out'])
+
         output_S.grad = np.gradient(output_S.I_out)
         
+
         if return_algebraic:
             return output_S, output_A
         return output_S

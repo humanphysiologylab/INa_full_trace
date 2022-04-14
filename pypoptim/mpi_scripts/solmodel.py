@@ -45,6 +45,18 @@ class SolModel(Solution):
 
             update_C_from_genes(C, genes, exp_cond_name, self.config)
             #assert np.any(C != legend['constants'])
+            
+            # check that pipette not so fast
+            # pipette_check = C['c_p'] * C['R_f']
+            # etal = 5e-5
+            # if pipette_check <= etal:
+            #     self._x = genes.values
+            #     self._y = np.nan
+            #     return
+
+
+
+
             n_sections = exp_cond['n_sections']
             df_protocol = exp_cond['protocol']
             df_initial_state_protocol = self.config['runtime']['initial_state_protocol']

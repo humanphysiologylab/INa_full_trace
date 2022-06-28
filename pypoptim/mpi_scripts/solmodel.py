@@ -1,3 +1,4 @@
+import sys
 import numpy as np
 import pandas as pd
 import logging
@@ -9,6 +10,9 @@ from pypoptim.algorythm import Solution
 from gene_utils import update_C_from_genes
 
 from loss_utils import calculate_loss
+
+sys.path.append('src/python_func/')
+from models import calculate_tau_j_from_ab,calculate_tau_h_from_ab,calculate_tau_m_from_ab 
 
 
 class SolModel(Solution):
@@ -54,7 +58,15 @@ class SolModel(Solution):
             #     self._y = np.nan
             #     return
 
+            #check that tau_h not so fast
 
+            tau_m_right = calculate_tau_m_from_ab(15., C)
+            tau_h_right = calculate_tau_h_from_ab(15., C)
+            tau_j_right = calculate_tau_j_from_ab(15., C)
+            if (tau_m_right < 5e-5) or (tau_h_right < 7e-5) or (tau_j_right < 2e-4):
+                self._x = genes.values
+                self._y = np.nan
+                return
 
 
             n_sections = exp_cond['n_sections']

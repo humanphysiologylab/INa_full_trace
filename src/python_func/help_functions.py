@@ -22,6 +22,7 @@ def show_fig(datas,
              step = 5,
              i_global = 0,
              i_global_step =1,
+             ylabel = 'I, pA',
              ):
     
     if colors is None:
@@ -84,7 +85,7 @@ def show_fig(datas,
             plt.xlim(xlim)
             i_global += i_global_step
             if i_col == 0:
-                plt.ylabel('I, pA')
+                plt.ylabel(ylabel)
             if i_row == nrows-1:
                 plt.xlabel('t, s')
                       

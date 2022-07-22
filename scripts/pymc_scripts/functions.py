@@ -1,4 +1,5 @@
 from distutils.dep_util import newer_group
+from re import M
 import numpy as np
 import pandas as pd
 import sys
@@ -56,7 +57,8 @@ def func_model(params,
                m_index,
                Ina=None,
                const=None,
-               config=None):
+               config=None,
+               ):
     C = const.copy()
     A = config['runtime']['legend']['algebraic'].copy()
     S = config['runtime']['legend']['states'].copy()
@@ -70,32 +72,35 @@ def func_model(params,
     return ina
 
 
-def return_data_cut(params,
+def return_data_cut(Params,
                     data=None, 
                     m_index=None, 
                     Ina=None, 
                     const=None, 
                     config=None,
                     len_step=5000,
-                    downsampling=10,
                     null_ind=np.array([0, 7, 107, 207, 407, 500]),
                     pipette_ind=[7, 107, 207, 407],
+                    downsampling=None,
+                    mask_mult=None,
+                    mask_cut=None,
                     ):
-
+    params=Params.copy()
+    if mask_mult is not None:
+        params[mask_mult] = 10**params[mask_mult]
+    if mask_cut is None:
+        mask_cut = np.ones(len_step).astype('bool')
+    mask_cut_down = mask_cut[::downsampling]
     ina = func_model(params, m_index, Ina=Ina, const=const, config=config)  
     if np.any(np.isnan(ina)):
         return np.float64(-1e50)
 
     delta_ina = data - ina    
-    data_cut_size = int(len_step/downsampling)
-    data_cut = np.array([np.zeros(data_cut_size) for k in range(19)])
+    data_cut_size = np.sum(mask_cut_down)
+    data_cut = np.zeros([19, data_cut_size])
     
     for k in range(19):
-        data_cut[k] = np.array(delta_ina[(k+1)*len_step:(k+2)*len_step:downsampling])#[start_ina:end_ina]
-        for p_ind in pipette_ind:
-            data_cut[k][p_ind:p_ind+4] = np.nan
-    data_cut = np.delete(data_cut, np.where(np.isnan(data_cut)), axis=1)
-
+        data_cut[k] = delta_ina[(k+1)*len_step:(k+2)*len_step:downsampling][mask_cut_down]#[start_ina:end_ina]
     return data_cut
 
 def find_S(params,
@@ -106,8 +111,9 @@ def find_S(params,
             config=None,
             len_step=5000,
             downsampling=10,
+            mask_mult=None,
+            mask_cut=None,
             ):
-
     data_cut = return_data_cut(params,
                                 data=data, 
                                 m_index=m_index, 
@@ -116,6 +122,9 @@ def find_S(params,
                                 config=config,
                                 len_step=len_step,
                                 downsampling=downsampling,
+                                mask_mult=mask_mult,
+                                mask_cut=mask_cut,
+
                                 )
     if type(data_cut) != np.ndarray:
         return data_cut

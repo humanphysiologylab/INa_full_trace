@@ -485,7 +485,10 @@ class AwfulLogLike(at.Op):
         self.Ina = ina_dict['Ina']
         self.const = ina_dict['const']
         self.config = ina_dict['config']
-        
+        self.mask_mult = ina_dict['mask_mult']
+        self.mask_cut = ina_dict['mask_cut']
+        self.downsampling = ina_dict['downsampling']
+
         self.likelihood = loglike
         self.n = n
         self.p = p
@@ -505,7 +508,11 @@ class AwfulLogLike(at.Op):
                              m_index=self.m_index, 
                              Ina = self.Ina,
                              const=self.const,
-                             config=self.config,)
+                             config=self.config,
+                             mask_mult=self.mask_mult,
+                             mask_cut=self.mask_cut,
+                             downsampling=self.downsampling,
+                             )
                                                 
         if type(self.S) != np.ndarray:
             logl = np.array(self.S)
@@ -528,6 +535,10 @@ class AwfulLogLike(at.Op):
                              Ina=self.Ina,
                              const=self.const,
                              config=self.config,
+                             mask_mult=self.mask_mult,
+                             mask_cut=self.mask_cut,
+                             downsampling=self.downsampling,
+                            
                              )
 
         self.cov_mat = ss.invwishart.rvs(df=beta_accepted + self.n,

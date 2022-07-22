@@ -90,17 +90,17 @@ def return_data_cut(Params,
         params[mask_mult] = 10**params[mask_mult]
     if mask_cut is None:
         mask_cut = np.ones(len_step).astype('bool')
-    mask_cut_down = mask_cut[::downsampling]
+
     ina = func_model(params, m_index, Ina=Ina, const=const, config=config)  
     if np.any(np.isnan(ina)):
         return np.float64(-1e50)
 
     delta_ina = data - ina    
-    data_cut_size = np.sum(mask_cut_down)
+    data_cut_size = np.sum(mask_cut)
     data_cut = np.zeros([19, data_cut_size])
     
     for k in range(19):
-        data_cut[k] = delta_ina[(k+1)*len_step:(k+2)*len_step:downsampling][mask_cut_down]#[start_ina:end_ina]
+        data_cut[k] = delta_ina[(k+1)*len_step:(k+2)*len_step:downsampling][mask_cut]
     return data_cut
 
 def find_S(params,

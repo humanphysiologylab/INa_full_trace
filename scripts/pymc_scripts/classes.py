@@ -551,3 +551,238 @@ class AwfulLogLike(at.Op):
                                         scale = 2/invcov_diag[k])
                                         for k in range(self.p)]
                                         )
+
+class ThirdLevelStupidDEMetropolisZ(ArrayStepShared):
+    name = "StupidDEMetropolisZ"
+
+    default_blocked = True
+    generates_stats = True
+    stats_dtypes = [
+        {
+            "accept": np.float64,
+            "accepted": bool,
+            "tune": bool,
+            "scaling": np.float64,
+            "lambda": np.float64,
+        }
+    ]
+
+    def __init__(
+        self,
+        vars=None,
+        S=None,
+        proposal_dist=None,
+        lamb=None,
+        scaling=0.001,
+        tune="lambda",
+        tune_interval=100,
+        tune_drop_fraction: float = 0.9,
+        model=None,
+        mode=None,
+        bounds=None,
+        initial_values_size=None,
+        transform=True,
+        scale_factor=1/5,
+        **kwargs
+    ):
+        model = pm.modelcontext(model)
+        initial_values = model.initial_point()
+
+        if initial_values_size is None:
+            initial_values_size = sum(initial_values[n.name].size 
+            for n in model.value_vars)#2
+
+        if vars is None:
+            vars = model.cont_vars
+        else:
+            vars = [model.rvs_to_values.get(var, var) for var in vars]
+        vars = pm.inputvars(vars)
+
+        if S is None:
+            S = np.ones(initial_values_size)
+        
+        self.S = S
+        
+        if proposal_dist is not None:
+            self.proposal_dist = proposal_dist(self.S)
+        else:
+            self.proposal_dist = UniformProposal(self.S)
+        
+        self.scaling = np.atleast_1d(scaling).astype("d")
+        if lamb is None:
+            # default to the optimal lambda for normally distributed targets
+            lamb = 2.38 / np.sqrt(2 * initial_values_size)
+        self.lamb = float(lamb)
+        if tune not in {None, "scaling", "lambda", "S"}:
+            raise ValueError('The parameter "tune" must be one of {None, scaling, lambda, S}')
+        self.tune = True
+        self.tune_target = tune
+        self.tune_interval = tune_interval
+        self.tune_drop_fraction = tune_drop_fraction
+        self.steps_until_tune = tune_interval
+        self.accepted = 0
+
+        # cache local history for the Z-proposals
+        self._history = []
+        # remember initial settings before tuning so they can be reset
+        self._untuned_settings = dict(
+            scaling=self.scaling,
+            lamb=self.lamb,
+            steps_until_tune=tune_interval,
+            accepted=self.accepted,
+        )
+
+        self.mode = mode
+        self.bounds = bounds
+        self.initial_values_size = initial_values_size
+        self.transform = transform
+        self.scale_factor = scale_factor
+        
+        shared = pm.make_shared_replacements(initial_values, vars, model)
+        self.delta_logp = delta_logp(initial_values, model.logp(), vars, shared)
+        super().__init__(vars, shared)
+
+
+    def reset_tuning(self):
+        """Resets the tuned sampler parameters and history to their initial values."""
+        # history can't be reset via the _untuned_settings dict because it's a list
+        self._history = []
+        for attr, initial_value in self._untuned_settings.items():
+            setattr(self, attr, initial_value)
+        return
+
+    def astep(self, q0: RaveledVars) -> Tuple[RaveledVars, List[Dict[str, Any]]]:
+
+        point_map_info = q0.point_map_info
+        q0 = q0.data
+        # same tuning scheme as DEMetropolis
+        if not self.steps_until_tune: #and self.tune:
+            if self.tune_target == "scaling":
+                self.scaling = tune(self.scaling, self.accepted / float(self.tune_interval))
+               
+            elif self.tune_target == "lambda":
+                self.lamb = tune(self.lamb, self.accepted / float(self.tune_interval))
+            elif self.tune_target == "S":
+
+                eps = 0.00001
+                self.S = 2.38**2/self.initial_values_size*(np.cov(self._history,rowvar=False)+eps*np.identity(self.initial_values_size)) 
+                self.proposal_dist = pm.MultivariateNormalProposal(self.S)
+
+                
+            # Reset counter
+            self.steps_until_tune = self.tune_interval
+            self.accepted = 0
+
+        epsilon = self.proposal_dist() * self.scaling
+        if not self.transform:
+            while(np.any(q0 + epsilon <= self.bounds[0]) or np.any(q0 + epsilon >= self.bounds[1])): 
+                epsilon = self.proposal_dist() * self.scaling
+
+        it = len(self._history)
+        # use the DE-MCMC-Z proposal scheme as soon as the history has 2 entries
+        if it > 1:
+            # differential evolution proposal
+            # select two other chains
+            iz1 = np.random.randint(it)
+            iz2 = np.random.randint(it)
+            while iz2 == iz1:
+                iz2 = np.random.randint(it)
+
+            z1 = self._history[iz1]
+            z2 = self._history[iz2]
+            # propose a jump
+            q = floatX(q0 + self.lamb * (z1 - z2) + epsilon)
+        else:
+            # propose just with noise in the first 2 iterations
+            q = floatX(q0 + epsilon)
+            
+        dellog_q0_q = self.delta_logp(q, q0)
+        # print(f'dellog_q0_q = {dellog_q0_q}')
+        q_new, accepted = metrop_select(dellog_q0_q, q, q0)
+        accept = dellog_q0_q
+        # print(f'ACCEPT_0  = {accept}')
+
+        if not accepted: #Delayed Rejection
+            epsilon = self.proposal_dist() * self.scaling * self.scale_factor
+            q2 = floatX(q0 + epsilon)
+            if not self.transform:
+                while(np.any(q2 <= self.bounds[0]) or np.any(q2 >= self.bounds[1])): 
+                    epsilon = self.proposal_dist() * self.scaling * self.scale_factor
+                    q2 = floatX(q0 + epsilon)
+                    
+            dellog_q2_q = self.delta_logp(q, q2) #gonna use it below. TODO: still one excessive evaluation of loglike.
+            dellog_q0_q2 = dellog_q0_q - dellog_q2_q
+
+            if dellog_q2_q > 0: 
+                accept = -np.inf
+            else:
+
+                alpha_ratio = np.log(1 - np.exp(dellog_q2_q))-np.log(1-np.exp(dellog_q0_q))
+                scaled_S_inv = np.linalg.inv(self.scaling**2*self.S) #accounted for scaling
+                prop_ratio = -(np.dot(q2 - q, np.dot(scaled_S_inv, q2 - q)) 
+                            - np.dot(q0 - q, np.dot(scaled_S_inv, q0 - q)))/2
+                accept = dellog_q0_q2 + prop_ratio + alpha_ratio 
+                # print(f'dellog_q0_q2 = {dellog_q0_q2}')
+            # print(f'ACCEPT_1  = {accept}')
+            q_new, accepted = metrop_select(accept, q2, q0)
+            if not accepted:
+                epsilon = self.proposal_dist() * self.scaling * self.scale_factor**2
+                q3 = floatX(q0 + epsilon)
+                if not self.transform:
+                    while(np.any(q3 <= self.bounds[0]) or np.any(q3 >= self.bounds[1])): 
+                        epsilon = self.proposal_dist() * self.scaling * self.scale_factor**2
+                        # print(f'epsilon = {epsilon}')
+                        q3 = floatX(q0 + epsilon)
+
+                dellog_q3_q = self.delta_logp(q, q3)
+                dellog_q3_q2 = dellog_q3_q - dellog_q2_q #self.delta_logp(q2, q3)
+                # print(f'dellog_q3_q  = {dellog_q3_q}, dellog_q3_q2  = {dellog_q3_q2}')
+
+                if dellog_q3_q > 0 or dellog_q3_q2 > 0: 
+                    accept = -np.inf
+                else:
+                    alpha_ratio = (np.log(1 - np.exp(dellog_q3_q2)) + np.log(1 - np.exp(dellog_q3_q2)) 
+                                - np.log(1-np.exp(dellog_q0_q)) - np.log(1-np.exp(dellog_q0_q2)))
+                    scaled_S_inv = np.linalg.inv(self.scaling**2*self.S)
+                    prop_ratio = -(np.dot(q3 - q2, np.dot(scaled_S_inv, q3 - q2)) + np.dot(q3 - q, np.dot(scaled_S_inv, q3 - q))
+                                - np.dot(q0 - q, np.dot(scaled_S_inv, q0 - q)) - np.dot(q0 - q3, np.dot(scaled_S_inv, q0 - q3)))/2
+                    accept = dellog_q0_q - dellog_q3_q + prop_ratio + alpha_ratio 
+                    # print(f'dellog_q0_q3 = {dellog_q0_q - dellog_q3_q}')
+
+                q_new, accepted = metrop_select(accept, q3, q0)
+                # print(f'ACCEPT_2  = {accept}')
+
+            
+        self.accepted += accepted
+        self._history.append(q_new)
+
+        self.steps_until_tune -= 1
+
+        stats = {
+            "tune": self.tune,
+            "scaling": self.scaling,
+            "lambda": self.lamb,
+            "accept": np.exp(accept),
+            "accepted": accepted,
+        }
+
+        q_new = RaveledVars(q_new, point_map_info)
+
+        return q_new, [stats]
+
+
+    def stop_tuning(self):
+        """At the end of the tuning phase, this method removes the first x% of the history
+        so future proposals are not informed by unconverged tuning iterations.
+        """
+        it = len(self._history)
+        n_drop = int(self.tune_drop_fraction * it)
+        self._history = self._history[n_drop:]
+        return super().stop_tuning()
+
+
+    @staticmethod
+    def competence(var, has_grad):
+        if var.dtype in pm.discrete_types:
+            return Competence.INCOMPATIBLE
+        return Competence.COMPATIBLE
